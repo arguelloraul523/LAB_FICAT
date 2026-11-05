@@ -15,7 +15,7 @@ import encuestaRoutes from './encuesta.routes.js';
 import notificacionRoutes from './notificacion.routes.js';
 import configuracionRoutes from './configuracion.routes.js';
 import inconformidadRoutes from './inconformidad.routes.js';
-import asistenteRoutes from './asistente.routes.js';
+import chatbotRoutes from '../chatbot/chatbot.routes.js';
 import reporteRoutes from './reporte.routes.js';
 import cronRoutes from './cron.routes.js';
 
@@ -37,7 +37,7 @@ router.use('/encuestas', encuestaRoutes);
 router.use('/notificaciones', notificacionRoutes);
 router.use('/configuracion', configuracionRoutes);
 router.use('/inconformidades', inconformidadRoutes);
-router.use('/asistente', asistenteRoutes);
+router.use('/asistente', chatbotRoutes);
 router.use('/reportes', reporteRoutes);
 router.use('/cron', cronRoutes);
 

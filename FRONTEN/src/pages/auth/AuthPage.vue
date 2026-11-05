@@ -8,8 +8,8 @@
             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
           </svg>
         </div>
-        <div class="text-h6 text-weight-bold text-navy q-mt-sm">Laboratorio SENA</div>
-        <div class="text-caption text-grey-6">Sistema de Gestión del Laboratorio</div>
+        <div class="text-h6 text-weight-bold text-navy q-mt-sm">LABFICAT</div>
+        <div class="text-caption text-grey-6">Laboratorio de Caracterización Fisicoquímica de Alimentos</div>
       </div>
 
       <!-- Tabs Ingresar / Registrar -->
@@ -66,12 +66,24 @@
               <q-input v-model="reg.apellidos" label="Apellidos" outlined rounded dense class="col-6" lazy-rules :rules="[v => !!v || 'Obligatorio']" />
             </div>
             <div class="row q-col-gutter-md">
-              <q-select v-model="reg.tipoDocumento" label="Tipo de documento" outlined rounded dense class="col-4" :options="['CC', 'TI', 'CE']" />
-              <q-input v-model="reg.numeroDocumento" label="Número de documento" outlined rounded dense class="col-8" lazy-rules :rules="[v => !!v || 'Obligatorio']" />
+              <q-select v-model="reg.tipoDocumento" label="Tipo de documento" outlined rounded dense class="col-4" :options="['CC', 'TI', 'CE', 'NIT']" />
+              <q-input v-model="reg.numeroDocumento" label="Número de documento / NIT" outlined rounded dense class="col-8" lazy-rules :rules="[v => !!v || 'Obligatorio']" />
             </div>
             <q-input v-model="reg.telefono" label="Teléfono / celular" outlined rounded dense lazy-rules :rules="[v => !!v || 'Obligatorio']">
               <template #prepend><q-icon name="phone" color="primary" /></template>
             </q-input>
+
+            <!-- Datos del cliente (opcionales) — formulario LABFICAT -->
+            <q-input v-model="reg.razonSocial" label="Razón social / empresa (opcional)" outlined rounded dense />
+            <q-input v-model="reg.direccion" label="Dirección (opcional)" outlined rounded dense />
+            <div class="row q-col-gutter-md">
+              <q-input v-model="reg.ciudad" label="Ciudad (opcional)" outlined rounded dense class="col-6" />
+              <q-input v-model="reg.departamento" label="Departamento (opcional)" outlined rounded dense class="col-6" />
+            </div>
+            <div class="row q-col-gutter-md">
+              <q-input v-model="reg.cargo" label="Cargo (opcional)" outlined rounded dense class="col-6" />
+              <q-input v-model="reg.personaContacto" label="Persona de contacto (opcional)" outlined rounded dense class="col-6" />
+            </div>
 
             <q-input v-model="reg.contrasena" :type="mostrar ? 'text' : 'password'" label="Contraseña (mínimo 6)" outlined rounded dense lazy-rules :rules="[v => (v && v.length >= 6) || 'Mínimo 6 caracteres']">
               <template #prepend><q-icon name="lock" color="primary" /></template>
@@ -112,6 +124,12 @@ const reg = reactive({
   numeroDocumento: '',
   correo: '',
   telefono: '',
+  razonSocial: '',
+  direccion: '',
+  ciudad: '',
+  departamento: '',
+  cargo: '',
+  personaContacto: '',
   contrasena: '',
   confirmarContrasena: '',
 })

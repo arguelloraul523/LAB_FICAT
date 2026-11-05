@@ -24,7 +24,7 @@ const aCsv = (resumen) => {
 
 const aXlsx = async (resumen) => {
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'Laboratorio SENA';
+  wb.creator = 'LABFICAT';
   const ws = wb.addWorksheet('Reporte');
   ws.columns = [
     { header: 'Métrica', key: 'metrica', width: 38 },

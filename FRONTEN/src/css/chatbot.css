@@ -1,0 +1,1440 @@
+﻿/* ============================================================
+   Widget del asistente del laboratorio.
+   Se conservan los estilos, animaciones y la mascota del chatbot,
+   pero las variables viven dentro de .chatbot-root para no alterar
+   la página principal.
+   ============================================================ */
+
+.chatbot-root {
+  --sena-green: #39a900;
+  --sena-green-dark: #2e8700;
+  --sena-yellow: #fdc300;
+  --ink: #121212;
+  --page: #ffffff;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --chat-bg: #fafaf5;
+  --radius: 16px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif;
+}
+
+.chatbot-root [hidden] {
+  display: none !important;
+}
+
+.chatbot-root button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.chatbot-root img {
+  display: block;
+}
+/* ---------------- Burbuja flotante ---------------- */
+
+.chat-bubble-wrap {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  animation: pop-in 0.25s ease-out;
+}
+
+.chat-tooltip {
+  width: 250px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  animation: tooltip-in 0.4s ease-out 0.6s both;
+}
+
+.chat-tooltip-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-tooltip-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.chat-tooltip-status {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sena-green);
+}
+
+.chat-tooltip p.chat-tooltip-text {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #374151;
+}
+
+.chat-bubble-row {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Burbuja de sueÃ±o ("Zzz") a la izquierda de la mascota */
+.sleep-bubble {
+  position: absolute;
+  right: calc(100% + 10px);
+  bottom: 26px;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 7px 12px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  animation: sleep-bubble-in 0.3s ease-out;
+  pointer-events: none;
+}
+
+.sleep-bubble::after {
+  content: '';
+  position: absolute;
+  right: -6px;
+  bottom: 12px;
+  width: 12px;
+  height: 12px;
+  background: #fff;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  transform: rotate(-45deg);
+  border-radius: 0 0 3px 0;
+}
+
+.sleep-z {
+  font-weight: 700;
+  line-height: 1;
+  color: var(--sena-green-dark);
+  animation: z-float 2.2s ease-in-out infinite;
+}
+
+.sleep-z1 {
+  font-size: 15px;
+}
+.sleep-z2 {
+  font-size: 12px;
+  animation-delay: 0.3s;
+  opacity: 0.8;
+}
+.sleep-z3 {
+  font-size: 9px;
+  animation-delay: 0.6s;
+  opacity: 0.6;
+}
+
+@keyframes sleep-bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes z-float {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
+.chat-bubble {
+  position: relative;
+  width: 80px;
+  height: 90px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  transition: transform 0.15s ease;
+}
+
+.chat-bubble:hover {
+  transform: scale(1.05);
+}
+
+.chat-bubble .mascot-slot {
+  display: block;
+}
+
+.chat-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 30;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--sena-yellow);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+/* ---------------- Panel de chat ---------------- */
+
+.chat-panel {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9000;
+  width: 380px;
+  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  animation: panel-in 0.3s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.chat-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--ink);
+  color: #fff;
+}
+
+.chat-head-mascot {
+  cursor: pointer;
+  display: block;
+}
+
+.chat-head-info {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.chat-head-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.chat-head-sub {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.head-btn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.45);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.head-btn:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.head-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.flag-bar {
+  display: flex;
+  height: 4px;
+  flex: 0 0 auto;
+}
+.flag-yellow {
+  flex: 2;
+  background: var(--sena-yellow);
+}
+.flag-green {
+  flex: 1;
+  background: var(--sena-green);
+}
+
+.session-bar {
+  padding: 6px 16px;
+  font-size: 11px;
+  border-bottom: 1px solid #f3f4f6;
+  background: #f9fafb;
+  color: var(--muted);
+}
+
+.session-bar.is-authed {
+  background: #f1f8eb;
+  color: var(--sena-green-dark);
+}
+
+.session-bar .session-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.session-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sena-green-dark);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.session-bar b {
+  font-weight: 600;
+  color: var(--sena-green-dark);
+}
+
+.stats-bar {
+  display: flex;
+  gap: 16px;
+  padding: 8px 16px;
+  background: #f9fafb;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 10px;
+  color: var(--muted);
+  animation: slide-down 0.2s ease-out;
+}
+
+.stats-bar b {
+  color: var(--ink);
+}
+
+/* ---------------- Mensajes ---------------- */
+
+.messages {
+  position: relative;
+  flex: 1;
+  min-height: 180px;
+  padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--chat-bg);
+}
+
+.msg {
+  display: flex;
+  animation: msg-in 0.2s ease-out;
+}
+
+.msg.is-user {
+  justify-content: flex-end;
+}
+
+.msg.is-bot {
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.msg-avatar {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  margin-top: 2px;
+}
+
+.msg-bubble {
+  font-size: 13px;
+  line-height: 1.45;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+.msg.is-user .msg-bubble {
+  max-width: 85%;
+  padding: 8px 12px;
+  border-radius: 16px 16px 4px 16px;
+  background: var(--sena-yellow);
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.msg.is-bot .msg-bubble {
+  max-width: 90%;
+  padding: 12px;
+  border-radius: 4px 16px 16px 16px;
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.msg-bubble strong {
+  font-weight: 700;
+}
+
+/* Opciones numeradas */
+
+.options {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #f9fafb;
+  color: var(--ink);
+  font-size: 12px;
+  text-align: left;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.option-btn:hover {
+  border-color: var(--sena-green);
+  background: #f1f8eb;
+}
+
+.option-btn.is-login {
+  background: #f9fafb;
+  border-style: dashed;
+  border-color: #d1d5db;
+}
+
+.option-btn.is-login:hover {
+  border-color: var(--sena-green);
+}
+
+.option-num {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  background: var(--sena-yellow);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.option-btn.is-login .option-num {
+  background: #e5e7eb;
+}
+
+.option-text {
+  flex: 1;
+}
+
+.option-tail {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #9ca3af;
+}
+
+.option-tail.is-login {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--sena-green-dark);
+}
+
+.option-tail svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Indicador "escribiendo" */
+
+.typing {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  animation: msg-in 0.2s ease-out;
+}
+
+.typing-bubble {
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 4px 16px 16px 16px;
+  background: #fff;
+}
+
+.typing-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.typing-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sena-green);
+  animation: dot-bounce 0.7s infinite;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.typing-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* ---------------- Composer ---------------- */
+
+.composer {
+  padding: 12px;
+  border-top: 1px solid #f3f4f6;
+  background: #fff;
+}
+
+.composer-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-input {
+  flex: 1;
+  height: 40px;
+  min-width: 0;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  background: #fff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: var(--sena-green);
+  box-shadow: 0 0 0 3px rgba(57, 169, 0, 0.12);
+}
+
+.chat-input:disabled {
+  background: #f9fafb;
+}
+
+.send-btn {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--sena-green);
+  color: #fff;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.send-btn:hover:not(:disabled) {
+  background: var(--sena-green-dark);
+}
+
+.send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.send-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ============================================================
+   Mascota
+   ============================================================ */
+
+.mascot {
+  position: relative;
+  width: var(--size, 64px);
+  height: var(--size, 64px);
+  flex: 0 0 auto;
+}
+
+.mascot-float {
+  width: 100%;
+  height: 100%;
+  animation: mascot-float 6s ease-in-out infinite;
+}
+
+.mascot-body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.18), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  transform-origin: 50% 60%;
+  animation-fill-mode: both;
+}
+
+/* Recorta el contorno oscuro que trae el PNG en el borde derecho/inferior */
+.mascot-face {
+  position: absolute;
+  inset: 0;
+  transform: scale(1.08);
+  transform-origin: 50% 50%;
+}
+
+.mascot-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.mascot-tint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  filter: var(--tint, none);
+  transition: opacity 0.6s ease-in-out, filter 0.6s ease-in-out;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 30%,
+    rgba(0, 0, 0, 0.45) 35%,
+    rgba(0, 0, 0, 0) 41%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 30%,
+    rgba(0, 0, 0, 0.45) 35%,
+    rgba(0, 0, 0, 0) 41%
+  );
+}
+
+.mascot-tint img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mascot-pen {
+  position: absolute;
+  left: 15.5%;
+  top: 75%;
+  width: 9%;
+  height: 9%;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    circle,
+    rgba(190, 255, 90, 0.95) 0%,
+    rgba(120, 255, 60, 0.45) 45%,
+    rgba(120, 255, 60, 0) 72%
+  );
+}
+
+.mascot-eyes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  filter: var(--tint, none);
+  transition: filter 0.6s ease-in-out;
+}
+
+.eye {
+  position: absolute;
+  left: var(--eye-left);
+  top: 26.08%;
+  width: 16.27%;
+  height: 24.4%;
+}
+
+.eye-move {
+  position: absolute;
+  inset: 0;
+  transform: translate(var(--eye-x, 0%), var(--eye-y, 0%));
+}
+
+.eye-ball {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  transform-origin: 50% 50%;
+  transition: transform 0.25s ease;
+}
+
+.eye-white {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 40% 35%, #ffffff 0%, #fbfbfb 60%, #e6e6e6 100%);
+  transition: opacity 0.25s ease;
+}
+
+.lid {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 55%;
+  z-index: 2;
+  transition: transform 0.15s ease, opacity 0.2s ease;
+}
+
+.lid-top {
+  top: 0;
+  border-radius: 0 0 50% 50%;
+  background: linear-gradient(180deg, var(--skin-top) 0%, var(--skin-avg) 100%);
+  transform: translateY(-100%);
+}
+
+.lid-bottom {
+  bottom: 0;
+  border-radius: 50% 50% 0 0;
+  background: linear-gradient(0deg, var(--skin-bot) 0%, var(--skin-avg) 100%);
+  transform: translateY(100%);
+}
+
+.brow {
+  position: absolute;
+  left: -35%;
+  top: 0;
+  z-index: 3;
+  width: 170%;
+  height: 75%;
+  background: linear-gradient(180deg, var(--skin-top) 0%, var(--skin-avg) 100%);
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.18);
+  transform-origin: 50% 50%;
+  transform: translateY(-125%) rotate(var(--tilt, 0deg));
+  opacity: 0;
+  transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+}
+
+/* --- Tintes por emociÃ³n (solo parte superior de la cabeza) --- */
+
+.mascot[data-anim="triste"] {
+  --tint: hue-rotate(100deg) saturate(1.5) brightness(0.86);
+  --tint-opacity: 1;
+}
+.mascot[data-anim="confundido"] {
+  --tint: hue-rotate(105deg) saturate(1.8) brightness(0.98);
+  --tint-opacity: 1;
+}
+.mascot[data-anim="amor"] {
+  --tint: hue-rotate(-150deg) saturate(1.1) brightness(1.05);
+  --tint-opacity: 1;
+}
+.mascot[data-anim="sueno"] {
+  --tint: hue-rotate(20deg) saturate(0.85) brightness(0.8);
+  --tint-opacity: 1;
+}
+.mascot[data-anim="sorpresa"],
+.mascot[data-anim="pago"] {
+  --tint: hue-rotate(-24deg) saturate(1.08) brightness(1.1);
+  --tint-opacity: 1;
+}
+.mascot[data-anim="saludo"],
+.mascot[data-anim="check"],
+.mascot[data-anim="asesor"],
+.mascot[data-anim="contento"],
+.mascot[data-anim="login"] {
+  --tint: hue-rotate(-12deg) saturate(1.06) brightness(1.06);
+  --tint-opacity: 1;
+}
+.mascot[data-anim="pensar"] {
+  --tint: hue-rotate(20deg) saturate(0.95) brightness(1);
+  --tint-opacity: 1;
+}
+.mascot[data-anim="estado"] {
+  --tint: hue-rotate(34deg) saturate(1) brightness(0.96);
+  --tint-opacity: 1;
+}
+.mascot[data-anim="enojado"] {
+  --tint: hue-rotate(-121deg) saturate(2.8) brightness(0.82);
+  --tint-opacity: 1;
+}
+
+.mascot[data-anim="triste"] .mascot-tint,
+.mascot[data-anim="confundido"] .mascot-tint,
+.mascot[data-anim="amor"] .mascot-tint,
+.mascot[data-anim="sueno"] .mascot-tint,
+.mascot[data-anim="sorpresa"] .mascot-tint,
+.mascot[data-anim="pago"] .mascot-tint,
+.mascot[data-anim="saludo"] .mascot-tint,
+.mascot[data-anim="check"] .mascot-tint,
+.mascot[data-anim="asesor"] .mascot-tint,
+.mascot[data-anim="contento"] .mascot-tint,
+.mascot[data-anim="login"] .mascot-tint,
+.mascot[data-anim="pensar"] .mascot-tint,
+.mascot[data-anim="estado"] .mascot-tint,
+.mascot[data-anim="enojado"] .mascot-tint {
+  opacity: 1;
+}
+
+/* --- Animaciones del cuerpo por estado --- */
+
+.mascot[data-anim="saludo"] .mascot-body {
+  animation: m-saludo 1.6s ease-in-out 1;
+}
+.mascot[data-anim="buscar"] .mascot-body {
+  animation: m-buscar 1.3s ease-in-out infinite alternate;
+}
+.mascot[data-anim="portapapeles"] .mascot-body {
+  animation: m-portapapeles 0.75s ease-in-out infinite alternate;
+}
+.mascot[data-anim="pago"] .mascot-body {
+  animation: m-pago 1s ease-out 2;
+}
+.mascot[data-anim="carnet"] .mascot-body {
+  animation: m-carnet 1s ease-in-out infinite alternate;
+}
+.mascot[data-anim="estado"] .mascot-body {
+  animation: m-estado 1.25s ease-in-out infinite alternate;
+}
+.mascot[data-anim="asesor"] .mascot-body {
+  animation: m-asesor 1.25s ease-in-out infinite alternate;
+}
+.mascot[data-anim="pensar"] .mascot-body {
+  animation: m-pensar 1.5s ease-in-out infinite alternate;
+}
+.mascot[data-anim="check"] .mascot-body {
+  animation: m-check 0.6s ease-out 1;
+}
+.mascot[data-anim="enojado"] .mascot-body {
+  animation: m-enojado 0.5s ease-in-out 3;
+}
+.mascot[data-anim="triste"] .mascot-body {
+  animation: m-triste 0.9s ease-out forwards;
+}
+.mascot[data-anim="amor"] .mascot-body {
+  animation: m-amor 0.65s ease-in-out infinite alternate;
+}
+.mascot[data-anim="sueno"] .mascot-body {
+  animation: m-sueno 2.5s ease-in-out infinite alternate;
+}
+.mascot[data-anim="sorpresa"] .mascot-body {
+  animation: m-sorpresa 0.5s ease-out 1;
+}
+.mascot[data-anim="contento"] .mascot-body {
+  animation: m-contento 0.9s ease-out 1;
+}
+.mascot[data-anim="confundido"] .mascot-body {
+  animation: m-confundido 1.2s ease-in-out 1;
+}
+.mascot[data-anim="yacasi"] .mascot-body {
+  animation: m-yacasi 0.4s ease-in-out infinite alternate;
+}
+.mascot[data-anim="llamar"] .mascot-body {
+  animation: m-llamar 1.4s ease-in-out 1;
+}
+.mascot[data-anim="login"] .mascot-body {
+  animation: m-login 0.9s ease-in-out 1;
+}
+
+/* --- Ojos por estado --- */
+
+.mascot[data-anim="buscar"] .eye-ball {
+  animation: eye-scan 1.3s ease-in-out infinite alternate;
+}
+.mascot[data-anim="pensar"] .eye-ball,
+.mascot[data-anim="yacasi"] .eye-ball {
+  animation: eye-think 0.9s ease-in-out infinite alternate;
+}
+.mascot[data-anim="llamar"] .eye-ball {
+  transform: translateX(-18%);
+}
+.mascot[data-anim="portapapeles"] .eye-ball,
+.mascot[data-anim="carnet"] .eye-ball {
+  transform: translateY(10%);
+}
+.mascot[data-anim="sueno"] .eye-ball {
+  transform: translateY(8%);
+}
+.mascot[data-anim="sorpresa"] .eye-ball {
+  transform: scale(1.3);
+}
+.mascot[data-anim="amor"] .eye-ball {
+  animation: eye-love 0.65s ease-in-out infinite alternate;
+}
+.mascot[data-anim="contento"] .eye-ball {
+  transform: scale(1.1);
+}
+.mascot[data-anim="confundido"] .eye-left .eye-ball {
+  transform: scale(1.18);
+}
+.mascot[data-anim="confundido"] .eye-right .eye-ball {
+  transform: scale(0.92);
+}
+
+/* Cejas: enojado y triste */
+.mascot[data-anim="enojado"] .brow {
+  transform: translateY(-22%) rotate(var(--tilt, 0deg));
+  opacity: 1;
+}
+.mascot[data-anim="triste"] .brow {
+  transform: translateY(-58%) rotate(var(--tilt-sad, 0deg));
+  opacity: 1;
+}
+
+/* Parpadeo por mascota registrada (los avatares estÃ¡ticos no parpadean) */
+.mascot.mascot-blink:not(.mascot--static) .lid-top {
+  transform: translateY(0);
+}
+.mascot.mascot-blink:not(.mascot--static) .lid-bottom {
+  transform: translateY(0);
+}
+
+/* LÃ­nea de ojo cerrado (visible solo en sueÃ±o) */
+.eye-ball::after {
+  content: '';
+  position: absolute;
+  left: 22%;
+  top: 50%;
+  width: 56%;
+  height: 22%;
+  transform: translateY(-100%);
+  border-bottom: calc(var(--size, 64px) * 0.045) solid rgba(0, 65, 0, 0.45);
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* SueÃ±o: se ocultan pÃ¡rpados y blanco; queda el verde normal de la cara
+   con una sola lÃ­nea curva al centro. */
+.mascot[data-anim="sueno"] .lid,
+.mascot[data-anim="sueno"] .brow {
+  opacity: 0;
+}
+.mascot[data-anim="sueno"] .eye-white {
+  opacity: 0;
+}
+.mascot[data-anim="sueno"] .eye-ball::after {
+  opacity: 1;
+}
+
+/* Esfero brillante */
+.mascot[data-anim="buscar"] .mascot-pen,
+.mascot[data-anim="estado"] .mascot-pen,
+.mascot[data-anim="portapapeles"] .mascot-pen,
+.mascot[data-anim="carnet"] .mascot-pen {
+  animation: pen-glow 1.1s ease-in-out infinite;
+}
+
+/* Chispas (estado / login) */
+.mascot-sparks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 30;
+  display: none;
+}
+.mascot[data-anim="estado"] .mascot-sparks,
+.mascot[data-anim="login"] .mascot-sparks {
+  display: block;
+}
+
+.mascot-spark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  animation: spark-out 0.9s ease-out forwards;
+}
+
+/* --- Mascota viva y avatares estÃ¡ticos --- */
+
+/* Mascota viva: viaja por el historial hasta la última respuesta. */
+.live-mascot-host {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  line-height: 0;
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform;
+  transition: transform 0.32s cubic-bezier(0.22, 0.8, 0.24, 1), opacity 0.2s ease;
+}
+
+.live-mascot-host.is-visible {
+  opacity: 1;
+}
+
+/* A 28 px el barrido ocular necesita algo mÃ¡s de recorrido para percibirse.
+   Las mascotas fijas conservan el valor original de los keyframes. */
+.live-mascot-host .mascot {
+  --eye-scan-distance: 20%;
+  --eye-think-distance: 22%;
+}
+
+/* Un avatar histÃ³rico conserva la expresiÃ³n, pero no se anima ni se mueve. */
+.mascot--static,
+.mascot--static * {
+  animation: none !important;
+  transition: none !important;
+}
+
+.mascot--static .eye-move {
+  transform: none !important;
+}
+
+/* Poses estÃ¡ticas para estados cuya expresiÃ³n depende de una animaciÃ³n.
+   Solo afectan al histÃ³rico; las fijas y la viva conservan sus valores. */
+.mascot--static[data-anim="buscar"] .eye-ball {
+  transform: translateX(-18%);
+}
+.mascot--static[data-anim="pensar"] .eye-ball,
+.mascot--static[data-anim="yacasi"] .eye-ball {
+  transform: translateX(-20%);
+}
+.mascot--static[data-anim="llamar"] .eye-ball {
+  transform: translateX(-22%);
+}
+.mascot--static[data-anim="portapapeles"] .eye-ball,
+.mascot--static[data-anim="carnet"] .eye-ball {
+  transform: translateY(12%);
+}
+.mascot--static[data-anim="amor"] .eye-ball {
+  transform: scale(1.15);
+}
+.mascot--static[data-anim="sorpresa"] .eye-ball {
+  transform: scale(1.24);
+}
+.mascot--static[data-anim="confundido"] .eye-left .eye-ball {
+  transform: scale(1.14);
+}
+.mascot--static[data-anim="confundido"] .eye-right .eye-ball {
+  transform: scale(0.94);
+}
+.mascot--static[data-anim="triste"] .mascot-body {
+  transform: scale(0.95) translateY(2px);
+}
+.mascot--static[data-anim="buscar"] .mascot-pen,
+.mascot--static[data-anim="estado"] .mascot-pen,
+.mascot--static[data-anim="portapapeles"] .mascot-pen,
+.mascot--static[data-anim="carnet"] .mascot-pen {
+  opacity: 0.85;
+  transform: scale(1.05) rotate(4deg);
+}
+
+/* --- Keyframes de la mascota --- */
+
+@keyframes mascot-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes m-saludo {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  30% {
+    transform: translateY(-4px) rotate(-3deg) scale(1.03);
+  }
+  60% {
+    transform: translateY(-2px) rotate(3deg) scale(1.01);
+  }
+}
+@keyframes m-buscar {
+  from {
+    transform: translateX(-2px) rotate(-2deg);
+  }
+  to {
+    transform: translateX(2px) rotate(2deg);
+  }
+}
+@keyframes m-portapapeles {
+  from {
+    transform: translateY(0) rotate(0deg);
+  }
+  to {
+    transform: translateY(-2px) rotate(2deg);
+  }
+}
+@keyframes m-pago {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.03);
+  }
+}
+@keyframes m-carnet {
+  from {
+    transform: translateY(0) rotate(-2deg);
+  }
+  to {
+    transform: translateY(-2px) rotate(2deg);
+  }
+}
+@keyframes m-estado {
+  from {
+    transform: rotate(-3deg) translateY(0);
+  }
+  to {
+    transform: rotate(0deg) translateY(-2px);
+  }
+}
+@keyframes m-asesor {
+  from {
+    transform: translateY(0) scale(1);
+  }
+  to {
+    transform: translateY(-3px) scale(1.03);
+  }
+}
+@keyframes m-pensar {
+  from {
+    transform: rotate(0deg) translateX(0);
+  }
+  to {
+    transform: rotate(5deg) translateX(2px);
+  }
+}
+@keyframes m-check {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.04);
+  }
+}
+@keyframes m-enojado {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg) scale(1);
+  }
+  20% {
+    transform: translateX(-3px) rotate(-4deg) scale(1.06);
+  }
+  40% {
+    transform: translateX(3px) rotate(4deg) scale(1.06);
+  }
+  60% {
+    transform: translateX(-2px) rotate(-2deg) scale(1.04);
+  }
+  80% {
+    transform: translateX(2px) rotate(2deg) scale(1.04);
+  }
+}
+@keyframes m-triste {
+  from {
+    transform: scale(1) translateY(0);
+  }
+  to {
+    transform: scale(0.93) translateY(3px);
+  }
+}
+@keyframes m-amor {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.07);
+  }
+}
+@keyframes m-sueno {
+  from {
+    transform: rotate(-4deg) translateY(3px);
+  }
+  to {
+    transform: rotate(4deg) translateY(3px);
+  }
+}
+@keyframes m-sorpresa {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  40% {
+    transform: translate(5px, -9px) scale(0.92) rotate(-6deg);
+  }
+}
+@keyframes m-contento {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  25% {
+    transform: translateY(-6px) scale(1.05);
+  }
+  50% {
+    transform: translateY(0) scale(1);
+  }
+  75% {
+    transform: translateY(-3px) scale(1.03);
+  }
+}
+@keyframes m-confundido {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-9deg);
+  }
+  55% {
+    transform: rotate(9deg);
+  }
+  80% {
+    transform: rotate(-5deg);
+  }
+}
+@keyframes m-yacasi {
+  from {
+    transform: rotate(-5deg) translateY(0);
+  }
+  to {
+    transform: rotate(5deg) translateY(-2px);
+  }
+}
+@keyframes m-llamar {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  30% {
+    transform: translate(-8px, -4px) rotate(-8deg);
+  }
+  60% {
+    transform: translate(-8px, 0) rotate(-8deg);
+  }
+}
+@keyframes m-login {
+  0% {
+    transform: rotate(0deg) scale(1) translateY(0);
+  }
+  50% {
+    transform: rotate(360deg) scale(1.12) translateY(-6px);
+  }
+  100% {
+    transform: rotate(360deg) scale(1) translateY(0);
+  }
+}
+
+@keyframes eye-scan {
+  from {
+    transform: translateX(calc(var(--eye-scan-distance, 14%) * -1));
+  }
+  to {
+    transform: translateX(var(--eye-scan-distance, 14%));
+  }
+}
+@keyframes eye-think {
+  from {
+    transform: translateX(calc(var(--eye-think-distance, 16%) * -1));
+  }
+  to {
+    transform: translateX(var(--eye-think-distance, 16%));
+  }
+}
+@keyframes eye-love {
+  from {
+    transform: scale(1.1);
+  }
+  to {
+    transform: scale(1.18);
+  }
+}
+
+@keyframes pen-glow {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(0.9) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.35) rotate(12deg);
+  }
+}
+
+@keyframes spark-out {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  55% {
+    transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1.4);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0);
+    opacity: 0;
+  }
+}
+
+/* ---------------- Keyframes de UI ---------------- */
+
+@keyframes pop-in {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes tooltip-in {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes panel-in {
+  from {
+    transform: translateY(40px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes msg-in {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dot-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+/* ---------------- Responsive ---------------- */
+
+@media (max-width: 480px) {
+  .chat-panel {
+    right: 12px;
+    bottom: 12px;
+    width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+  }
+
+  .chat-bubble-wrap {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .chat-tooltip {
+    width: 220px;
+  }
+}
+
+/* ---------------- Movimiento reducido ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .chatbot-root *,
+  .chatbot-root *::before,
+  .chatbot-root *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .mascot-float {
+    animation: none;
+  }
+  .mascot-eyes {
+    transition: none;
+  }
+  .eye-move {
+    transition: none;
+  }
+}

@@ -7,7 +7,7 @@
 
         <q-toolbar-title class="row items-center q-gutter-x-sm no-wrap">
           <q-icon name="science" size="sm" />
-          <span class="text-weight-bold">Laboratorio SENA</span>
+          <span class="text-weight-bold">LABFICAT</span>
         </q-toolbar-title>
 
         <!-- Rol activo (multirrol) -->
@@ -38,8 +38,8 @@
     <!-- ===== Drawer / menú ===== -->
     <q-drawer v-model="drawer" show-if-above :width="240" bordered class="bg-white">
       <div class="q-pa-md">
-        <div class="text-h6 text-sena text-weight-bold">SENA</div>
-        <div class="text-caption text-grey-7">Gestión del Laboratorio</div>
+        <div class="text-h6 text-sena text-weight-bold">LABFICAT</div>
+        <div class="text-caption text-grey-7">Laboratorio de Alimentos</div>
       </div>
       <q-separator />
 
@@ -89,6 +89,7 @@ const MENU = [
   { name: 'pagos', label: 'Mis pagos', icon: 'payments', roles: ['Cliente'] },
   { name: 'muestras', label: 'Mis muestras', icon: 'biotech', roles: ['Cliente'] },
   { name: 'recepcion', label: 'Recepción', icon: 'inbox', roles: ['Administrador', 'Recepcionista'] },
+  { name: 'muestras-admin', label: 'Muestras (gestión)', icon: 'biotech', roles: ['Administrador', 'Recepcionista'] },
   { name: 'cola', label: 'Cola del día', icon: 'format_list_numbered', roles: ['Administrador', 'Recepcionista', 'Analista'] },
   { name: 'usuarios', label: 'Usuarios', icon: 'group', roles: ['Administrador'] },
   { name: 'verificaciones', label: 'Verificación SENA', icon: 'verified', roles: ['Administrador'] },

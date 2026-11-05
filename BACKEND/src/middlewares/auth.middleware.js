@@ -38,6 +38,34 @@ const proteger = async (req, res, next) => {
   }
 };
 
+// Autenticación opcional (chatbot público): sin token continúa como visitante;
+// si viene token lo valida y carga req.usuario; si es inválido responde 401.
+const protegerOpcional = async (req, res, next) => {
+  const header = req.headers.authorization;
+  if (!header) return next();
+  if (!header.startsWith('Bearer ')) {
+    return res.status(401).json({ ok: false, mensaje: 'Token inválido o expirado' });
+  }
+
+  try {
+    const payload = verificarToken(header.split(' ')[1]);
+    const usuario = await Usuario.findById(payload.id)
+      .populate('rol')
+      .populate('roles')
+      .select('-contrasenaHash');
+    if (!usuario || !usuario.activo) {
+      return res.status(401).json({ ok: false, mensaje: 'Token inválido o expirado' });
+    }
+    if (!usuario.roles || usuario.roles.length === 0) {
+      usuario.roles = usuario.rol ? [usuario.rol] : [];
+    }
+    req.usuario = usuario;
+    return next();
+  } catch {
+    return res.status(401).json({ ok: false, mensaje: 'Token inválido o expirado' });
+  }
+};
+
 // Restringe una ruta a ciertos roles. Uso: autorizar('Administrador', 'Recepcionista')
 const autorizar =
   (...roles) =>
@@ -52,4 +80,4 @@ const autorizar =
     next();
   };
 
-export { proteger, autorizar };
+export { proteger, protegerOpcional, autorizar };

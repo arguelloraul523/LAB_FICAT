@@ -26,7 +26,7 @@ const enviarCorreo = async ({ para, asunto, texto, html }) => {
   }
 
   await transporter.sendMail({
-    from: `"Laboratorio SENA" <${process.env.MAIL_USER}>`,
+    from: `"LABFICAT" <${process.env.MAIL_USER}>`,
     to: para,
     subject: asunto,
     text: texto,

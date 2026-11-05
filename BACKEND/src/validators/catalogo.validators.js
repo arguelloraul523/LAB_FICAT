@@ -23,6 +23,9 @@ const validarExamen = [
   body('tipoMuestra').optional().isMongoId().withMessage('El tipo de muestra debe ser un id válido'),
   body('nombre').optional().trim().notEmpty().withMessage('El nombre del examen es obligatorio'),
   body('descripcion').optional({ nullable: true }).isString().withMessage('La descripción debe ser texto'),
+  body('metodo').optional({ nullable: true }).trim().isString().withMessage('El método debe ser texto'),
+  body('tecnica').optional({ nullable: true }).trim().isString().withMessage('La técnica debe ser texto'),
+  body('tercerizado').optional().isBoolean().withMessage('tercerizado debe ser booleano'),
   body('precio')
     .optional()
     .isFloat({ min: 0 })

@@ -7,6 +7,10 @@ const examenSchema = new mongoose.Schema(
     tipoMuestra: { type: mongoose.Schema.Types.ObjectId, ref: 'TipoMuestra', required: true },
     nombre: { type: String, required: true, trim: true },
     descripcion: { type: String },
+    // Datos técnicos del formulario LABFICAT ("Propuesta técnica y económica").
+    metodo: { type: String, trim: true, default: null }, // p. ej. "AOAC 900.02 C:2023"
+    tecnica: { type: String, trim: true, default: null }, // p. ej. "Gravimetría"
+    tercerizado: { type: Boolean, default: false }, // "**" = ensayo tercerizado con laboratorio externo
     precio: { type: Number, required: true, min: 0 },
     tiempoRespuestaDias: { type: Number, required: true, min: 0 },
     cantidadRequerida: { type: Number, required: true, min: 0 },

@@ -9,8 +9,22 @@ import { enviarCorreo } from '../utils/mailer.js';
 
 // Registro de un nuevo usuario (devuelve el token de acceso)
 const registrar = asyncHandler(async (req, res) => {
-  const { contrasena, nombres, apellidos, tipoDocumento, numeroDocumento, correo, telefono, tipologia } =
-    req.body;
+  const {
+    contrasena,
+    nombres,
+    apellidos,
+    tipoDocumento,
+    numeroDocumento,
+    correo,
+    telefono,
+    tipologia,
+    razonSocial,
+    direccion,
+    ciudad,
+    departamento,
+    cargo,
+    personaContacto,
+  } = req.body;
   const contrasenaHash = await bcrypt.hash(contrasena, 10);
 
   // El rol y el tipo de usuario NUNCA se aceptan desde el body (regla inviolable #12, RF-02).
@@ -28,6 +42,12 @@ const registrar = asyncHandler(async (req, res) => {
     correo,
     telefono,
     tipologia,
+    razonSocial,
+    direccion,
+    ciudad,
+    departamento,
+    cargo,
+    personaContacto,
     rol: rolCliente._id,
     roles: [rolCliente._id],
     tipoUsuario: 'EXTERNO',

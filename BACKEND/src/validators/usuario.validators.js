@@ -7,9 +7,15 @@ const validarUsuario = [
   body('nombres').trim().notEmpty().withMessage('Los nombres son obligatorios'),
   body('apellidos').trim().notEmpty().withMessage('Los apellidos son obligatorios'),
   body('correo').trim().toLowerCase().isEmail().withMessage('Correo electrónico inválido'),
-  body('tipoDocumento').isIn(['CC', 'TI', 'CE']).withMessage('Tipo de documento inválido'),
+  body('tipoDocumento').isIn(['CC', 'TI', 'CE', 'NIT']).withMessage('Tipo de documento inválido'),
   body('numeroDocumento').trim().notEmpty().withMessage('El número de documento es obligatorio'),
   body('telefono').trim().notEmpty().withMessage('El teléfono es obligatorio'),
+  body('razonSocial').optional({ nullable: true }).trim().isString().withMessage('La razón social debe ser texto'),
+  body('direccion').optional({ nullable: true }).trim().isString().withMessage('La dirección debe ser texto'),
+  body('ciudad').optional({ nullable: true }).trim().isString().withMessage('La ciudad debe ser texto'),
+  body('departamento').optional({ nullable: true }).trim().isString().withMessage('El departamento debe ser texto'),
+  body('cargo').optional({ nullable: true }).trim().isString().withMessage('El cargo debe ser texto'),
+  body('personaContacto').optional({ nullable: true }).trim().isString().withMessage('La persona de contacto debe ser texto'),
   body('rol').isMongoId().withMessage('El rol es obligatorio y debe ser un id válido'),
   body('contrasena')
     .isLength({ min: 6 })
@@ -33,7 +39,7 @@ const validarUsuarioActualizacion = [
     .withMessage('Correo electrónico inválido'),
   body('tipoDocumento')
     .optional()
-    .isIn(['CC', 'TI', 'CE'])
+    .isIn(['CC', 'TI', 'CE', 'NIT'])
     .withMessage('Tipo de documento inválido'),
   body('rol').optional().isMongoId().withMessage('El rol debe ser un id válido'),
   body('roles').optional().isArray().withMessage('roles debe ser un array de ids'),
@@ -44,6 +50,12 @@ const validarUsuarioActualizacion = [
     .withMessage('El tipo de usuario debe ser SENA o EXTERNO'),
   body('activo').optional().isBoolean().withMessage('activo debe ser booleano'),
   body('tipologia').optional().isMongoId().withMessage('La tipología debe ser un id válido'),
+  body('razonSocial').optional({ nullable: true }).trim().isString().withMessage('La razón social debe ser texto'),
+  body('direccion').optional({ nullable: true }).trim().isString().withMessage('La dirección debe ser texto'),
+  body('ciudad').optional({ nullable: true }).trim().isString().withMessage('La ciudad debe ser texto'),
+  body('departamento').optional({ nullable: true }).trim().isString().withMessage('El departamento debe ser texto'),
+  body('cargo').optional({ nullable: true }).trim().isString().withMessage('El cargo debe ser texto'),
+  body('personaContacto').optional({ nullable: true }).trim().isString().withMessage('La persona de contacto debe ser texto'),
   body('contrasena')
     .optional()
     .isLength({ min: 6 })

@@ -54,6 +54,19 @@ const validarCrearMuestra = [
     .optional({ nullable: true })
     .isFloat()
     .withMessage('La temperatura de recepción debe ser un número'),
+  // Datos del formulario "Recepción de muestras" (CAT-ST-MI-F-002).
+  body('municipioRecoleccion').optional({ nullable: true }).trim().isString(),
+  body('direccionTomaMuestra').optional({ nullable: true }).trim().isString(),
+  body('lugarTomaMuestra').optional({ nullable: true }).trim().isString(),
+  body('recolectadaPor').optional({ nullable: true }).trim().isString(),
+  body('procedimientoMuestreo').optional({ nullable: true }).trim().isString(),
+  body('matrizMuestra').optional({ nullable: true }).trim().isString(),
+  body('fechaHoraRecoleccion')
+    .optional({ nullable: true })
+    .isISO8601()
+    .withMessage('La fecha y hora de recolección deben ser válidas (ISO 8601)'),
+  body('cotizacion').optional({ nullable: true }).isMongoId().withMessage('La cotización debe ser un id válido'),
+  body('itemCotizacion').optional({ nullable: true }).trim().isString(),
 ];
 
 // Cambio de etapa: PUT /api/muestras/:id/cambiar-etapa (RF-23)

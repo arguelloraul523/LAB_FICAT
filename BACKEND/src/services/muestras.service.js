@@ -121,6 +121,9 @@ const crearMuestra = async ({ body = {}, usuario }) => {
     prioridad,
     numeroTurno,
     estado: estadoInicial,
+    // Referencia a la cotización aceptada (formulario CAT-ST-MI-F-002): la fija
+    // el servidor a partir de la solicitud, no se acepta del cliente.
+    cotizacion: cotizacion?._id || null,
     // Lista de análisis copiada de la cotización (snapshot del servidor).
     examenes: examenes.map((examen) => ({ examen: examen._id })),
   });

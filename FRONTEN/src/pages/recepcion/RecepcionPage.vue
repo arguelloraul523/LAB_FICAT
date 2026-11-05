@@ -42,6 +42,16 @@
             <q-select v-model="form.estadoEmpaque" label="Estado del empaque" outlined dense :options="['Buen estado', 'Malas condiciones']" lazy-rules :rules="[val => !!val || 'Obligatorio']" />
             <q-select v-model="form.estadoInicial" label="Estado inicial" outlined dense :options="['Aceptada', 'En observación']" lazy-rules :rules="[val => !!val || 'Obligatorio']" />
             <q-input v-model="form.temperaturaRecepcion" type="number" label="Temperatura de recepción (°C, opcional)" outlined dense />
+            <q-separator />
+            <div class="text-subtitle2 text-weight-bold">Datos de recolección (CAT-ST-MI-F-002)</div>
+            <q-input v-model="form.municipioRecoleccion" label="Municipio de recolección" outlined dense />
+            <q-input v-model="form.direccionTomaMuestra" label="Dirección de toma de muestra" outlined dense />
+            <q-input v-model="form.lugarTomaMuestra" label="Lugar de toma de muestra" outlined dense />
+            <q-input v-model="form.recolectadaPor" label="Muestra recolectada por" outlined dense />
+            <q-input v-model="form.procedimientoMuestreo" label="Procedimiento de muestreo" outlined dense />
+            <q-input v-model="form.matrizMuestra" label="Matriz de la muestra" outlined dense />
+            <q-input v-model="form.fechaHoraRecoleccion" type="datetime-local" label="Fecha y hora de recolección" outlined dense />
+            <q-input v-model="form.itemCotizacion" label="Ítem de la cotización" outlined dense />
             <div class="row justify-end q-gutter-sm">
               <q-btn flat label="Cancelar" color="grey-7" v-close-popup no-caps />
               <q-btn type="submit" color="primary" label="Recibir" :loading="guardando" no-caps />
@@ -70,6 +80,31 @@ const form = reactive({
   estadoEmpaque: 'Buen estado',
   estadoInicial: 'Aceptada',
   temperaturaRecepcion: null,
+  municipioRecoleccion: '',
+  direccionTomaMuestra: '',
+  lugarTomaMuestra: '',
+  recolectadaPor: '',
+  procedimientoMuestreo: '',
+  matrizMuestra: '',
+  fechaHoraRecoleccion: '',
+  itemCotizacion: '',
+})
+
+const formVacio = () => ({
+  entregadoPor: '',
+  cantidadRecibida: null,
+  unidadMedida: '',
+  estadoEmpaque: 'Buen estado',
+  estadoInicial: 'Aceptada',
+  temperaturaRecepcion: null,
+  municipioRecoleccion: '',
+  direccionTomaMuestra: '',
+  lugarTomaMuestra: '',
+  recolectadaPor: '',
+  procedimientoMuestreo: '',
+  matrizMuestra: '',
+  fechaHoraRecoleccion: '',
+  itemCotizacion: '',
 })
 
 async function buscar() {
@@ -84,14 +119,19 @@ async function buscar() {
 }
 
 function abrirRecibir() {
-  Object.assign(form, { entregadoPor: '', cantidadRecibida: null, unidadMedida: '', estadoEmpaque: 'Buen estado', estadoInicial: 'Aceptada', temperaturaRecepcion: null })
+  Object.assign(form, formVacio())
   dialogo.value = true
 }
 
 async function recibir() {
   guardando.value = true
   try {
-    await api.post('/muestras', { solicitud: resultado.value.solicitud._id, ...form })
+    const payload = { solicitud: resultado.value.solicitud._id, ...form }
+    // datetime-local devuelve "YYYY-MM-DDTHH:mm"; lo normalizamos a ISO completo.
+    if (form.fechaHoraRecoleccion) {
+      payload.fechaHoraRecoleccion = new Date(form.fechaHoraRecoleccion).toISOString()
+    }
+    await api.post('/muestras', payload)
     mensajeOk('Muestra recibida')
     dialogo.value = false
     resultado.value = null

@@ -10,6 +10,7 @@ import App from './App.vue'
 import router from './router'
 import './boot/axios'
 import './css/app.css'
+import './css/chatbot.css'
 
 const app = createApp(App)
 

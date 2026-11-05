@@ -22,6 +22,10 @@ import { notFound, manejadorErrores } from './src/middlewares/error.middleware.j
 import Rol from './src/models/Rol.js';
 import Modulo from './src/models/Modulo.js';
 import TipologiaCliente from './src/models/TipologiaCliente.js';
+import CategoriaAnalisis from './src/models/CategoriaAnalisis.js';
+import TipoMuestra from './src/models/TipoMuestra.js';
+import Examen from './src/models/Examen.js';
+import MotivoRechazo from './src/models/MotivoRechazo.js';
 import PlantillaMensaje from './src/models/PlantillaMensaje.js';
 import ParametroSistema from './src/models/ParametroSistema.js';
 import Usuario from './src/models/Usuario.js';
@@ -83,7 +87,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Ruta de estado de la API
 app.get('/', (req, res) => {
   res.json({
-    nombre: 'Sistema de Gestión del Laboratorio (SENA)',
+    nombre: 'LABFICAT — Laboratorio de Caracterización Fisicoquímica de Alimentos (SENA)',
     estado: 'API en funcionamiento 🧪',
   });
 });
@@ -139,17 +143,108 @@ const correrSeed = async () => {
     roles[r.nombre] = rol;
   }
 
-  // 3. Tipologías de cliente (RF-04)
+  // 3. Tipologías de cliente (RF-04) — "Clasificación/Tipología" (formulario LABFICAT).
   const nombresTipologias = [
+    'Desplazados',
+    'Comunidad SENA',
+    'Emprendedor',
+    'Víctimas del Conflicto',
+    'Asociaciones',
+    'Cooperativas de Aprendices',
+    'Cooperativas',
     'Persona natural',
-    'Productor agropecuario / local',
-    'Empresa industrial o comercial',
-    'Institución educativa / investigador',
-    'Entidad pública',
-    'Aprendiz / funcionario SENA',
   ];
   for (const nombre of nombresTipologias) {
     await TipologiaCliente.findOneAndUpdate(
+      { nombre },
+      { nombre },
+      { upsert: true, new: true, runValidators: true }
+    );
+  }
+
+  // 3b. Catálogo inicial del laboratorio (RF-05), según la oferta LABFICAT.
+  const categoriaFQ = await CategoriaAnalisis.findOneAndUpdate(
+    { nombre: 'Fisicoquímico' },
+    { nombre: 'Fisicoquímico', descripcion: 'Análisis fisicoquímicos de alimentos' },
+    { upsert: true, new: true, runValidators: true }
+  );
+  const tipoAlimento = await TipoMuestra.findOneAndUpdate(
+    { nombre: 'Alimento' },
+    { nombre: 'Alimento', descripcion: 'Matriz alimentaria' },
+    { upsert: true, new: true, runValidators: true }
+  );
+  const examenesDef = [
+    { nombre: 'Humedad', metodo: 'AOAC 925.45 B:2023 Modificado', tecnica: 'Gravimetría', unidad: '%', precio: 15000 },
+    { nombre: 'Cenizas', metodo: 'AOAC 900.02 C:2023 Modificado', tecnica: 'Gravimetría', unidad: '%', precio: 15000 },
+    { nombre: 'Grasas', metodo: 'AOAC 920.39 C:2023 Modificado', tecnica: 'Gravimetría (Soxhlet)', unidad: '%', precio: 15000 },
+    { nombre: 'Proteína', metodo: 'AOAC 981.10:2023 Modificado', tecnica: 'Volumetría (Kjeldahl)', unidad: '%', precio: 15000 },
+    { nombre: 'Fibra Cruda', metodo: 'INTERNO-GOMEFC.01 V02 2024-09-23', tecnica: 'Hidrólisis Ácida y Básica', unidad: '%', precio: 133900, tercerizado: true },
+    { nombre: 'Fenoles totales', metodo: 'Folin, O., Ciocalteu, V. (1927)', tecnica: 'Espectrofotometría UV-Vis', unidad: '%', precio: 15000 },
+    { nombre: 'Grados Brix', metodo: 'ISO 2173:2003 Modificado', tecnica: 'Refractometría', unidad: '%', precio: 15000 },
+    { nombre: 'Sacarosa', metodo: 'ISO 10504:2013 Modificado', tecnica: 'Cromatografía HPLC', unidad: '%', precio: 15000 },
+    { nombre: 'Glucosa', metodo: 'ISO 10504:2013 Modificado', tecnica: 'Cromatografía HPLC', unidad: '%', precio: 15000 },
+    { nombre: 'Fructosa', metodo: 'ISO 10504:2013 Modificado', tecnica: 'Cromatografía HPLC', unidad: '%', precio: 15000 },
+    { nombre: 'Azúcares reductores', metodo: 'ISO 10504:2013 Modificado', tecnica: 'Cromatografía HPLC', unidad: '%', precio: 15000 },
+    { nombre: 'Azúcares totales', metodo: 'ISO 10504:2013 Modificado', tecnica: 'Cromatografía HPLC', unidad: '%', precio: 15000 },
+    { nombre: 'Hierro', metodo: 'AOAC 985.35:2023 Modificado', tecnica: 'AA Llama óxido nitroso - Acetileno', unidad: 'mg/kg', precio: 15000 },
+    { nombre: 'Calcio', metodo: 'AOAC 985.35:2023 Modificado', tecnica: 'AA Llama Aire - Acetileno', unidad: 'mg/kg', precio: 15000 },
+    { nombre: 'Arsénico', metodo: 'AOAC 986.15:2023 Modificado', tecnica: 'AA Generación de Hidruros', unidad: 'mg/kg', precio: 15000 },
+    { nombre: 'Plomo', metodo: 'AOAC 999.11:2023 Modificado', tecnica: 'AA Horno de grafito', unidad: 'mg/kg', precio: 15000 },
+    { nombre: 'Azúcares totales (Dubois)', metodo: 'Dubois, et al., (1951)', tecnica: 'Espectrofotometría UV-Vis', unidad: '%', precio: 15000 },
+    { nombre: 'Capacidad Antioxidante', metodo: 'Pyrzynska, K., & Pękal, A. (2013)', tecnica: 'Espectrofotometría UV-Vis', unidad: '%', precio: 15000 },
+    { nombre: 'Colorantes', metodo: 'NTC 1311:2021 Método B (de Arata)', tecnica: 'Cualitativo', unidad: 'Positivo - Negativo', precio: 15000 },
+    { nombre: 'Sulfitos', metodo: 'AOAC 990.28:2023', tecnica: 'Cualitativo', unidad: 'Positivo - Negativo', precio: 15000 },
+    { nombre: 'Aminoácidos', metodo: 'Xu, et al., (2015)', tecnica: 'Cromatografía HPLC', unidad: '%', precio: 15000 },
+    { nombre: 'Fenoles totales (HPLC)', metodo: 'Alarcón, et al., (2021)', tecnica: 'Cromatografía HPLC', unidad: '%', precio: 15000 },
+    { nombre: 'Acrilamida', metodo: 'Mesias et al., (2020)', tecnica: 'Cromatografía HPLC', unidad: '%', precio: 15000 },
+    { nombre: 'Vitamina A', metodo: 'Lopez, V (2013)', tecnica: 'Cromatografía HPLC', unidad: '%', precio: 15000 },
+    { nombre: 'Vitamina B', metodo: 'Ekinci, R., Kadakal, (2005)', tecnica: 'Cromatografía HPLC', unidad: '%', precio: 15000 },
+    { nombre: 'Vitamina D', metodo: 'Lopez, V (2013)', tecnica: 'Cromatografía HPLC', unidad: '%', precio: 15000 },
+    { nombre: 'Vitamina E', metodo: 'Lopez, V (2013)', tecnica: 'Cromatografía HPLC', unidad: '%', precio: 15000 },
+    { nombre: 'Vitamina K', metodo: 'Ekinci, R., Kadakal, (2005)', tecnica: 'Cromatografía HPLC', unidad: '%', precio: 15000 },
+    { nombre: 'Vitamina C', metodo: 'AOAC 2012.22:2023', tecnica: 'Cromatografía HPLC', unidad: '%', precio: 15000 },
+    { nombre: 'Sodio', metodo: 'AOAC 985.35:2023 Modificado', tecnica: 'AA Llama Aire - Acetileno', unidad: 'mg/kg', precio: 15000 },
+    { nombre: 'Potasio', metodo: 'AOAC 985.35:2023 Modificado', tecnica: 'AA Llama Aire - Acetileno', unidad: 'mg/kg', precio: 15000 },
+    { nombre: 'Fósforo', metodo: 'AOAC 995.11:2023 Modificado', tecnica: 'Espectrofotometría UV-Vis', unidad: '%', precio: 15000 },
+    { nombre: 'pH', metodo: 'AOAC 981.12:2023 Modificado', tecnica: 'Potenciometría', unidad: 'unidades de pH', precio: 15000 },
+    { nombre: 'Grados Brix miel', metodo: 'AOAC 920.180:2023', tecnica: 'Refractometría', unidad: '%', precio: 15000 },
+    { nombre: 'Humedad miel', metodo: 'AOAC 969.38 B:2023', tecnica: 'Refractometría', unidad: '%', precio: 15000 },
+    { nombre: 'Densidad', metodo: 'AOAC 962.37:1962', tecnica: 'Densimetría', unidad: 'g/mL', precio: 15000 },
+  ];
+  for (const ex of examenesDef) {
+    await Examen.findOneAndUpdate(
+      { nombre: ex.nombre, metodo: ex.metodo },
+      {
+        nombre: ex.nombre,
+        metodo: ex.metodo,
+        tecnica: ex.tecnica,
+        tercerizado: ex.tercerizado || false,
+        precio: ex.precio,
+        categoria: categoriaFQ._id,
+        tipoMuestra: tipoAlimento._id,
+        descripcion: `Análisis de ${ex.nombre} (${ex.tecnica})`,
+        tiempoRespuestaDias: 15,
+        cantidadRequerida: 1,
+        unidadMedida: ex.unidad,
+        tipoEnvase: 'Bolsa plástica',
+        activo: true,
+      },
+      { upsert: true, new: true, runValidators: true }
+    );
+  }
+
+  // 3c. Motivos de rechazo (RF-20), del formulario "Recepción de muestras".
+  const motivosRechazoDef = [
+    'Recipientes de recolección inadecuados',
+    'Envase roto, abierto o agujereado',
+    'Evidencias visibles de microorganismos',
+    'Evidencias de fermentación',
+    'Cantidad de muestra insuficiente',
+    'Falta de información o incongruencias en la identificación de los recipientes',
+    'Otro',
+  ];
+  for (const nombre of motivosRechazoDef) {
+    await MotivoRechazo.findOneAndUpdate(
       { nombre },
       { nombre },
       { upsert: true, new: true, runValidators: true }
@@ -313,6 +408,24 @@ const correrSeed = async () => {
       valor: '',
       descripcion: 'Correo de producción de centros que recibe las alertas de retraso (RF-32)',
     },
+    // Identidad del laboratorio (formulario LABFICAT): se usan en los PDF y encabezados.
+    { clave: 'nombreLaboratorio', valor: 'LABFICAT', descripcion: 'Nombre del laboratorio' },
+    {
+      clave: 'descripcionLaboratorio',
+      valor: 'Laboratorio de Caracterización Fisicoquímica de Alimentos del Centro Agroturístico de San Gil, Santander',
+      descripcion: 'Descripción institucional del laboratorio',
+    },
+    { clave: 'nit', valor: '899.999.034-1', descripcion: 'NIT del laboratorio' },
+    { clave: 'direccion', valor: 'Calle 22 No. 09 – 82, San Gil, Santander', descripcion: 'Dirección del laboratorio' },
+    { clave: 'correoInstitucional', valor: 'labficat@sena.edu.co', descripcion: 'Correo institucional del laboratorio' },
+    { clave: 'codigoFormatoCotizacion', valor: 'CAT-ST-OC-F-002', descripcion: 'Código del formato de oferta de servicios' },
+    {
+      clave: 'responsableLaboratorio',
+      valor: 'Manuel Fernando Córdoba Porras — Ing. Químico, MSc — Responsable de la Gestión Técnica y Administrativa del Laboratorio',
+      descripcion: 'Responsable que firma las ofertas de servicios',
+    },
+    { clave: 'diasEntregaResultados', valor: '15', descripcion: 'Días hábiles para la entrega de resultados' },
+    { clave: 'diasValidezOferta', valor: '30', descripcion: 'Días de validez de la oferta de servicios' },
   ];
   for (const parametro of parametrosDef) {
     await ParametroSistema.findOneAndUpdate(
@@ -326,6 +439,8 @@ const correrSeed = async () => {
   console.log(`   - Módulos: ${modulos.length}`);
   console.log(`   - Roles: ${Object.keys(roles).join(', ')}`);
   console.log(`   - Tipologías: ${nombresTipologias.length}`);
+  console.log(`   - Exámenes del catálogo: ${examenesDef.length}`);
+  console.log(`   - Motivos de rechazo: ${motivosRechazoDef.length}`);
   console.log(`   - Plantillas de notificación: ${plantillasDef.length}`);
   console.log(`   - Parámetros del sistema: ${parametrosDef.length}`);
   console.log(`   - Admin: ${correo}`);

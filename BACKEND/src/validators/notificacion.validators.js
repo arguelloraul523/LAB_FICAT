@@ -15,4 +15,11 @@ const validarNotificacion = [
   body('solicitud').optional({ nullable: true }).isMongoId().withMessage('La solicitud debe ser un id válido'),
 ];
 
-export { validarNotificacion };
+// Envío de un correo libre a un cliente (Admin/Recepcionista).
+const validarEnviarCorreo = [
+  body('usuario').isMongoId().withMessage('El cliente (usuario) es obligatorio y debe ser un id válido'),
+  body('asunto').trim().notEmpty().withMessage('El asunto es obligatorio'),
+  body('contenido').trim().notEmpty().withMessage('El contenido (observaciones) es obligatorio'),
+];
+
+export { validarNotificacion, validarEnviarCorreo };

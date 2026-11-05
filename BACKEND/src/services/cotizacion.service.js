@@ -20,7 +20,7 @@ const calcularCotizacion = async ({ solicitud, examenes = [] } = {}) => {
   if (!solicitud) throw errorCon(400, 'La solicitud es obligatoria');
 
   const doc = await Solicitud.findById(solicitud)
-    .populate('usuario')
+    .populate({ path: 'usuario', populate: { path: 'tipologia' } })
     .populate('tipoMuestra');
   if (!doc) throw errorCon(404, 'Solicitud no encontrada');
 
@@ -43,13 +43,15 @@ const calcularCotizacion = async ({ solicitud, examenes = [] } = {}) => {
     throw errorCon(400, `Exámenes no válidos o inactivos: ${faltantes.join(', ')}`);
   }
 
-  // Snapshot: precio del catálogo al momento de cotizar (no cambia después).
+  // Snapshot: precio y datos técnicos del catálogo al momento de cotizar (no cambian después).
   const detalles = entradas.map(({ examen, cantidad }) => {
     const examenCat = porId.get(examen);
     return {
       examen: examenCat._id,
       cantidadMuestras: cantidad,
       precioUnitario: examenCat.precio,
+      metodo: examenCat.metodo || null,
+      tecnica: examenCat.tecnica || null,
     };
   });
 

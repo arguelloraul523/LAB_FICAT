@@ -35,6 +35,16 @@ const muestraSchema = new mongoose.Schema(
       default: 'Recepción',
     },
     observaciones: { type: String },
+    // Datos del formulario "Recepción de muestras" (CAT-ST-MI-F-002).
+    municipioRecoleccion: { type: String, trim: true, default: null },
+    direccionTomaMuestra: { type: String, trim: true, default: null },
+    lugarTomaMuestra: { type: String, trim: true, default: null },
+    recolectadaPor: { type: String, trim: true, default: null },
+    procedimientoMuestreo: { type: String, trim: true, default: null },
+    matrizMuestra: { type: String, trim: true, default: null },
+    fechaHoraRecoleccion: { type: Date, default: null },
+    cotizacion: { type: mongoose.Schema.Types.ObjectId, ref: 'Cotizacion', default: null },
+    itemCotizacion: { type: String, trim: true, default: null },
     fechaIngreso: { type: Date, default: Date.now },
     examenes: [muestraExamenSchema],
     // Última alerta de retraso enviada por el cron (RF-32): evita repetir

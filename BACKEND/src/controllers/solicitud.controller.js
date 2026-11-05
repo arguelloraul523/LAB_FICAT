@@ -12,6 +12,13 @@ import { esCliente } from '../middlewares/propietario.middleware.js';
 import Solicitud from '../models/Solicitud.js';
 import Cotizacion from '../models/Cotizacion.js';
 import Examen from '../models/Examen.js';
+import ParametroSistema from '../models/ParametroSistema.js';
+
+// Lee un parámetro del sistema (clave-valor) con un valor por defecto.
+const leerParametro = async (clave, defecto) => {
+  const parametro = await ParametroSistema.findOne({ clave });
+  return parametro?.valor ?? defecto;
+};
 
 // Convierte los ids enviados por el cliente en subdocumentos con precio de catálogo.
 // El precio NUNCA llega del cliente: lo lee el servidor (RF-06, regla #11).
@@ -128,12 +135,21 @@ const crearCotizacion = asyncHandler(async (req, res) => {
   }
 
   const numeroCotizacion = await codigoCotizacion();
+
+  // Condiciones del formulario LABFICAT: entrega de resultados y validez de la
+  // oferta salen de los parámetros del sistema (snapshot en la cotización).
+  const entregaResultadosDias = Number(await leerParametro('diasEntregaResultados', '15')) || 15;
+  const diasValidez = Number(await leerParametro('diasValidezOferta', '30')) || 30;
+  const validezOferta = new Date(Date.now() + diasValidez * 24 * 60 * 60 * 1000);
+
   const cotizacion = await Cotizacion.create({
     solicitud: solicitud._id,
     numeroCotizacion,
     detalles,
     valorTotal,
     exonerada,
+    entregaResultadosDias,
+    validezOferta,
   });
 
   await cotizacion.populate('detalles.examen');

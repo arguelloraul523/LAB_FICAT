@@ -1,7 +1,8 @@
 <template>
   <router-view />
+  <ChatbotWidget />
 </template>
 
 <script setup>
-// Raíz de la app: solo renderiza la vista activa.
+import ChatbotWidget from 'src/components/chatbot/ChatbotWidget.vue'
 </script>

@@ -28,6 +28,7 @@ const routes = [
       { path: 'usuarios', name: 'usuarios', component: () => import('src/pages/admin/UsuariosPage.vue'), meta: { roles: ['Administrador'] } },
       { path: 'verificaciones', name: 'verificaciones', component: () => import('src/pages/admin/VerificacionesPage.vue'), meta: { roles: ['Administrador'] } },
       { path: 'catalogo', name: 'catalogo-admin', component: () => import('src/pages/admin/CatalogoPage.vue'), meta: { roles: ['Administrador'] } },
+      { path: 'muestras-admin', name: 'muestras-admin', component: () => import('src/pages/admin/MuestrasPage.vue'), meta: { roles: ['Administrador', 'Recepcionista'] } },
       { path: 'reportes', name: 'reportes', component: () => import('src/pages/admin/ReportesPage.vue'), meta: { roles: ['Administrador'] } },
     ],
   },

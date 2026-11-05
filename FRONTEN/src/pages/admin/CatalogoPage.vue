@@ -30,6 +30,11 @@
             <q-input v-model="form.nombre" label="Nombre" outlined dense lazy-rules :rules="[val => !!val || 'Obligatorio']" />
             <q-input v-model="form.descripcion" label="Descripción" outlined dense type="textarea" />
             <div class="row q-col-gutter-md">
+              <q-input v-model="form.metodo" label="Método (ej. AOAC 900.02 C:2023)" outlined dense class="col-6" />
+              <q-input v-model="form.tecnica" label="Técnica (ej. Gravimetría)" outlined dense class="col-6" />
+            </div>
+            <q-toggle v-model="form.tercerizado" label="Tercerizado (laboratorio externo)" />
+            <div class="row q-col-gutter-md">
               <q-input v-model="form.precio" type="number" label="Precio" outlined dense class="col-6" lazy-rules :rules="[val => val != null || 'Obligatorio']" />
               <q-input v-model="form.tiempoRespuestaDias" type="number" label="Días de respuesta" outlined dense class="col-6" />
             </div>
@@ -69,6 +74,8 @@ const editando = ref(null)
 
 const columnas = [
   { name: 'nombre', label: 'Nombre', field: 'nombre', align: 'left' },
+  { name: 'metodo', label: 'Método', field: 'metodo', align: 'left' },
+  { name: 'tecnica', label: 'Técnica', field: 'tecnica', align: 'left' },
   { name: 'categoria', label: 'Categoría', field: (r) => r.categoria?.nombre || '—', align: 'left' },
   { name: 'tipoMuestra', label: 'Matriz', field: (r) => r.tipoMuestra?.nombre || '—', align: 'left' },
   { name: 'precio', label: 'Precio', field: 'precio', align: 'left' },
@@ -81,6 +88,9 @@ const vacio = () => ({
   tipoMuestra: null,
   nombre: '',
   descripcion: '',
+  metodo: '',
+  tecnica: '',
+  tercerizado: false,
   precio: null,
   tiempoRespuestaDias: null,
   cantidadRequerida: null,
@@ -119,6 +129,9 @@ function abrir(fila = null) {
     tipoMuestra: fila.tipoMuestra?._id || fila.tipoMuestra,
     nombre: fila.nombre,
     descripcion: fila.descripcion,
+    metodo: fila.metodo,
+    tecnica: fila.tecnica,
+    tercerizado: fila.tercerizado,
     precio: fila.precio,
     tiempoRespuestaDias: fila.tiempoRespuestaDias,
     cantidadRequerida: fila.cantidadRequerida,

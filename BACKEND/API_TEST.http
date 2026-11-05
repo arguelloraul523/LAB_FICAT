@@ -1,5 +1,6 @@
 ##############################################
-# API Sistema de Gestión del Laboratorio (SENA)
+# API LABFICAT — Laboratorio de Caracterización
+# Fisicoquímica de Alimentos (SENA)
 # Requiere la extensión "REST Client" en VS Code,
 # o copia cada petición en Postman / Thunder Client.
 ##############################################
