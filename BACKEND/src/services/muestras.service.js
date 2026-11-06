@@ -256,9 +256,9 @@ const asignarAnalista = async ({ id, analistaId, accion, motivo, usuario }) => {
     throw errorCon(404, 'Analista no encontrado o inactivo');
   }
   const tieneRol =
-    analista.rol?.nombre === 'Analista' ||
-    (analista.roles || []).some((rol) => rol?.nombre === 'Analista');
-  if (!tieneRol) throw errorCon(400, 'El usuario indicado no tiene el rol Analista');
+    analista.rol?.nombre === 'Administrador' ||
+    (analista.roles || []).some((rol) => rol?.nombre === 'Administrador');
+  if (!tieneRol) throw errorCon(400, 'El usuario indicado no es personal del laboratorio');
 
   const anterior = muestra.analista;
   if (accion === 'Asignar' && anterior) {

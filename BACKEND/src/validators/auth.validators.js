@@ -75,6 +75,20 @@ const validarTipologiaUsuario = [
   body('tipologia').isMongoId().withMessage('La tipología seleccionada no es válida'),
 ];
 
+// Actualización del propio perfil (datos de contacto/dirección/tipología).
+const validarActualizarPerfil = [
+  body('nombres').optional().trim().notEmpty().withMessage('Los nombres no pueden ir vacíos'),
+  body('apellidos').optional().trim().notEmpty().withMessage('Los apellidos no pueden ir vacíos'),
+  body('telefono').optional().trim().isString().withMessage('El teléfono debe ser texto'),
+  body('direccion').optional({ nullable: true }).trim().isString(),
+  body('ciudad').optional({ nullable: true }).trim().isString(),
+  body('departamento').optional({ nullable: true }).trim().isString(),
+  body('cargo').optional({ nullable: true }).trim().isString(),
+  body('personaContacto').optional({ nullable: true }).trim().isString(),
+  body('razonSocial').optional({ nullable: true }).trim().isString(),
+  body('tipologia').optional({ nullable: true }).isMongoId().withMessage('La tipología debe ser un id válido'),
+];
+
 export {
   validarRegistro,
   validarLogin,
@@ -83,4 +97,5 @@ export {
   validarCambiarContrasena,
   validarCambiarRol,
   validarTipologiaUsuario,
+  validarActualizarPerfil,
 };

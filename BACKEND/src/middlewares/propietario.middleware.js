@@ -12,8 +12,6 @@ import Muestra from '../models/Muestra.js';
 // ============================================================
 
 const esCliente = (req) => req.usuario?.rol?.nombre === 'Cliente';
-// Rol activo Analista (código ciego RF-22): el controlador usa el DTO técnico.
-const esAnalista = (req) => req.usuario?.rol?.nombre === 'Analista';
 
 const idsDe = (Model, filtro) => Model.find(filtro).distinct('_id');
 
@@ -75,4 +73,4 @@ const fijarUsuarioPropio = (campo = 'usuario') =>
     next();
   };
 
-export { esCliente, esAnalista, alcances, filtrarPropios, exigirPropietario, fijarUsuarioPropio };
+export { esCliente, alcances, filtrarPropios, exigirPropietario, fijarUsuarioPropio };

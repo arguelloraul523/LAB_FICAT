@@ -23,39 +23,39 @@ router.delete('/cuentas/:id', proteger, autorizar('Administrador'), cuentasRecau
 // --- Cupones de pago ---
 router.get('/cupones', proteger, filtrarPropios(alcances.cupon), cupones.listar);
 router.get('/cupones/:id', proteger, exigirPropietario(CuponPago, alcances.cupon), cupones.obtener);
-router.post('/cupones', proteger, autorizar('Administrador', 'Recepcionista'), cupones.crear);
+router.post('/cupones', proteger, autorizar('Administrador'), cupones.crear);
 router.put('/cupones/:id', proteger, autorizar('Administrador'), cupones.actualizar);
 router.delete('/cupones/:id', proteger, autorizar('Administrador'), cupones.eliminar);
 
 // --- Pagos ---
 // Bandeja de pendientes y consulta del cliente ANTES de /:id (orden de rutas).
 // El Analista queda fuera de pagos (RF-22): no maneja datos de pago.
-router.get('/pendientes', proteger, autorizar('Administrador', 'Recepcionista'), pagos.pendientes);
+router.get('/pendientes', proteger, autorizar('Administrador'), pagos.pendientes);
 router.get(
   '/mis-pagos',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Cliente'),
+  autorizar('Administrador', 'Cliente'),
   filtrarPropios(alcances.pago),
   pagos.misPagos
 );
 router.get(
   '/',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Cliente'),
+  autorizar('Administrador', 'Cliente'),
   filtrarPropios(alcances.pago),
   pagos.listar
 );
 router.get(
   '/:id',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Cliente'),
+  autorizar('Administrador', 'Cliente'),
   exigirPropietario(Pago, alcances.pago),
   pagos.obtener
 );
 router.post(
   '/',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Cliente'),
+  autorizar('Administrador', 'Cliente'),
   uploadComprobante.single('archivoComprobante'),
   guardarSubida('archivoComprobante', 'comprobantes'),
   validarRegistrarPago,
@@ -65,7 +65,7 @@ router.post(
 router.put(
   '/:id/verificar',
   proteger,
-  autorizar('Administrador', 'Recepcionista'),
+  autorizar('Administrador'),
   validarVerificarPago,
   validarCampos,
   pagos.verificar

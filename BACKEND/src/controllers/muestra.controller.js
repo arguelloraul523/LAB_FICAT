@@ -11,8 +11,6 @@ import {
   POBLAR_EXAMEN,
 } from '../services/muestras.service.js';
 import { ANCHOS_ROTULO, htmlRotulo, htmlHojaTrabajo } from '../services/rotulo.service.js';
-import { dtoTecnico, PARAMETROS_EXAMEN } from '../services/blindaje.service.js';
-import { esAnalista } from '../middlewares/propietario.middleware.js';
 import Muestra from '../models/Muestra.js';
 import HistorialMuestra from '../models/HistorialMuestra.js';
 
@@ -34,39 +32,26 @@ const crear = asyncHandler(async (req, res) => {
   res.status(201).json({ ok: true, data: muestra });
 });
 
-// Listado: el Analista solo ve el DTO técnico (sin solicitud/usuario) RF-22
+// Listado de muestras (el personal ve todos los datos; el Cliente solo lo suyo).
 const listar = asyncHandler(async (req, res) => {
-  const ciego = esAnalista(req);
-  const poblados = ciego
-    ? [{ path: 'examenes.examen', select: PARAMETROS_EXAMEN }]
-    : [
-        { path: 'solicitud' },
-        { path: 'recepcionista' },
-        { path: 'analista' },
-        { path: 'examenes.examen' },
-      ];
-
-  let consulta = Muestra.find(req.alcance || {});
-  poblados.forEach((campo) => {
-    consulta = consulta.populate(campo);
-  });
+  const consulta = Muestra.find(req.alcance || {})
+    .populate('solicitud')
+    .populate('recepcionista')
+    .populate('analista')
+    .populate('examenes.examen');
   const docs = await consulta;
-  const data = docs.map((m) => (ciego ? dtoTecnico(m) : m));
-  res.json({ ok: true, total: data.length, data });
+  res.json({ ok: true, total: docs.length, data: docs });
 });
 
-// Detalle: mismo criterio; el Analista nunca recibe solicitud/usuario (RF-22)
+// Detalle de una muestra.
 const obtener = asyncHandler(async (req, res) => {
-  const ciego = esAnalista(req);
-  let consulta = Muestra.findById(req.params.id);
-  if (ciego) {
-    consulta = consulta.populate('examenes.examen', PARAMETROS_EXAMEN);
-  } else {
-    consulta = consulta.populate('solicitud').populate('recepcionista').populate('analista').populate('examenes.examen');
-  }
-  const muestra = await consulta;
+  const muestra = await Muestra.findById(req.params.id)
+    .populate('solicitud')
+    .populate('recepcionista')
+    .populate('analista')
+    .populate('examenes.examen');
   if (!muestra) return res.status(404).json({ ok: false, mensaje: 'Registro no encontrado' });
-  res.json({ ok: true, data: ciego ? dtoTecnico(muestra) : muestra });
+  res.json({ ok: true, data: muestra });
 });
 
 // Cola del día: A1 antes que A2 y luego por número de turno (RF-19, RNF-08)
@@ -107,7 +92,7 @@ const cambiarEtapa = asyncHandler(async (req, res) => {
     justificacion: req.body.justificacion,
     usuario: req.usuario,
   });
-  res.json({ ok: true, data: esAnalista(req) ? dtoTecnico(muestra) : muestra });
+  res.json({ ok: true, data: muestra });
 });
 
 // Asignación / reasignación de analista (RF-28, solo Administrador)
@@ -130,7 +115,7 @@ const reabrir = asyncHandler(async (req, res) => {
     motivo: req.body.motivo,
     usuario: req.usuario,
   });
-  res.json({ ok: true, data: esAnalista(req) ? dtoTecnico(muestra) : muestra });
+  res.json({ ok: true, data: muestra });
 });
 
 // Des-anonimización (RF-29): contraseña + motivo auditado.

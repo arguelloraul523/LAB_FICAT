@@ -122,7 +122,7 @@ import { useAuthStore } from 'src/stores/auth'
 import FirmaCanvas from 'src/components/FirmaCanvas.vue'
 
 const auth = useAuthStore()
-const puedeCotizar = computed(() => auth.tieneRol(['Administrador', 'Recepcionista']))
+const puedeCotizar = computed(() => auth.tieneRol(['Administrador']))
 
 const filas = ref([])
 const cargando = ref(false)

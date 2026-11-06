@@ -17,21 +17,21 @@ router.post('/sugerencias', proteger, validarSugerencias, validarCampos, solicit
 router.get(
   '/',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Cliente'),
+  autorizar('Administrador', 'Cliente'),
   filtrarPropios(alcances.solicitud),
   solicitudes.listar
 );
 router.get(
   '/:id',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Cliente'),
+  autorizar('Administrador', 'Cliente'),
   exigirPropietario(Solicitud, alcances.solicitud),
   solicitudes.obtener
 );
 router.post(
   '/',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Cliente'),
+  autorizar('Administrador', 'Cliente'),
   validarSolicitud,
   validarCampos,
   solicitudes.crear
@@ -39,7 +39,7 @@ router.post(
 router.put(
   '/:id',
   proteger,
-  autorizar('Administrador', 'Recepcionista'),
+  autorizar('Administrador'),
   permitirCampos('examenes'),
   exigirTransicion(Solicitud, [{ campo: 'estado', maquina: 'solicitud' }]),
   solicitudes.actualizar

@@ -1,105 +1,127 @@
 <template>
-  <div class="auth-fondo row items-center justify-center">
-    <q-card class="auth-card card-suave">
+  <div class="auth-fondo">
+    <div class="auth-card">
+      <button type="button" class="btn-volver" @click="volver">← Volver al inicio</button>
+
       <!-- Logo -->
-      <div class="text-center q-pt-lg">
-        <div class="logo-circulo flex flex-center q-mx-auto">
+      <div class="logo-section">
+        <div class="logo-circulo">
           <svg viewBox="0 0 24 24" class="logo-svg">
             <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
           </svg>
         </div>
-        <div class="text-h6 text-weight-bold text-navy q-mt-sm">LABFICAT</div>
-        <div class="text-caption text-grey-6">Laboratorio de Caracterización Fisicoquímica de Alimentos</div>
+        <div class="titulo">LABFICAT</div>
+        <div class="subtitulo">Laboratorio de Caracterización Fisicoquímica de Alimentos</div>
       </div>
 
-      <!-- Tabs Ingresar / Registrar -->
-      <q-tabs v-model="tab" dense class="q-mt-md text-primary" indicator-color="primary" align="justify" active-color="primary" narrow-indicator>
-        <q-tab name="ingresar" label="Ingresar" no-caps />
-        <q-tab name="registrar" label="Registrar" no-caps />
-      </q-tabs>
-      <q-separator />
+      <!-- Selector Ingresar / Registrar -->
+      <div class="toggle">
+        <button type="button" class="toggle-btn" :class="{ activo: tab === 'ingresar' }" @click="tab = 'ingresar'">Ingresar</button>
+        <button type="button" class="toggle-btn" :class="{ activo: tab === 'registrar' }" @click="tab = 'registrar'">Registrar</button>
+      </div>
 
-      <q-tab-panels v-model="tab" animated>
-        <!-- ===== INGRESAR ===== -->
-        <q-tab-panel name="ingresar">
-          <q-form @submit="ingresar" class="q-gutter-md">
-            <q-input v-model="login.correo" type="email" label="Correo electrónico" outlined rounded lazy-rules :rules="[v => !!v || 'El correo es obligatorio']">
-              <template #prepend><q-icon name="mail" color="primary" /></template>
-            </q-input>
-            <q-input v-model="login.contrasena" :type="mostrar ? 'text' : 'password'" label="Contraseña" outlined rounded lazy-rules :rules="[v => !!v || 'La contraseña es obligatoria']">
-              <template #prepend><q-icon name="lock" color="primary" /></template>
-              <template #append>
-                <q-icon :name="mostrar ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="mostrar = !mostrar" />
-              </template>
-            </q-input>
+      <!-- ===== INGRESAR ===== -->
+      <form v-if="tab === 'ingresar'" class="form" @submit.prevent="ingresar">
+        <label class="campo">
+          <span>Correo electrónico</span>
+          <input v-model="login.correo" type="email" placeholder="tucorreo@ejemplo.com" required />
+        </label>
+        <label class="campo">
+          <span>Contraseña</span>
+          <input v-model="login.contrasena" :type="mostrar ? 'text' : 'password'" placeholder="Tu contraseña" required />
+        </label>
+        <div class="row-fila">
+          <button type="submit" class="btn-submit">Iniciar sesión</button>
+        </div>
+      </form>
 
-            <div class="text-right">
-              <q-btn flat dense color="primary" label="¿Olvidaste tu contraseña?" no-caps to="/recuperar" />
-            </div>
+      <!-- ===== REGISTRAR ===== -->
+      <form v-else class="form" @submit.prevent="registrar">
+        <label class="campo">
+          <span>Correo electrónico</span>
+          <input v-model="reg.correo" type="email" placeholder="tucorreo@ejemplo.com" required />
+        </label>
+        <div v-if="esCorreoSena" class="aviso-sena">✅ Correo <b>@sena.edu.co</b> detectado: podrás solicitar verificación SENA para prioridad A1 y cotización $0.</div>
 
-            <q-btn type="submit" color="primary" label="Iniciar sesión" class="full-width" :loading="auth.cargando" no-caps unelevated rounded />
-          </q-form>
-        </q-tab-panel>
+        <div class="row-2">
+          <label class="campo">
+            <span>Nombres</span>
+            <input v-model="reg.nombres" type="text" placeholder="Nombres" required />
+          </label>
+          <label class="campo">
+            <span>Apellidos</span>
+            <input v-model="reg.apellidos" type="text" placeholder="Apellidos" required />
+          </label>
+        </div>
 
-        <!-- ===== REGISTRAR ===== -->
-        <q-tab-panel name="registrar">
-          <q-form @submit="registrar" class="q-gutter-md">
-            <!-- El correo determina si es SENA o Externo -->
-            <q-input v-model="reg.correo" type="email" label="Correo electrónico" outlined rounded lazy-rules :rules="[v => !!v || 'El correo es obligatorio']">
-              <template #prepend><q-icon name="mail" color="primary" /></template>
-              <template #append>
-                <q-badge :color="esCorreoSena ? 'primary' : 'grey-6'" text-color="white" class="q-px-sm q-py-xs">
-                  <q-icon :name="esCorreoSena ? 'verified' : 'person'" size="0.9rem" class="q-mr-xs" />
-                  {{ esCorreoSena ? 'SENA' : 'Externo' }}
-                </q-badge>
-              </template>
-            </q-input>
+        <div class="row-2">
+          <label class="campo">
+            <span>Tipo de documento</span>
+            <select v-model="reg.tipoDocumento">
+              <option value="CC">CC</option>
+              <option value="TI">TI</option>
+              <option value="CE">CE</option>
+              <option value="NIT">NIT</option>
+            </select>
+          </label>
+          <label class="campo">
+            <span>Número de documento / NIT</span>
+            <input v-model="reg.numeroDocumento" type="text" placeholder="Documento" required />
+          </label>
+        </div>
 
-            <q-banner v-if="esCorreoSena" class="bg-green-1 text-primary rounded-borders" dense>
-              <template #avatar><q-icon name="verified" color="primary" /></template>
-              ¡Correo <b>@sena.edu.co</b> detectado! Podrás solicitar la verificación SENA para obtener
-              <b>prioridad A1</b> y <b>cotización $0</b>.
-            </q-banner>
+        <label class="campo">
+          <span>Teléfono / celular</span>
+          <input v-model="reg.telefono" type="tel" placeholder="3000000000" required />
+        </label>
 
-            <div class="row q-col-gutter-md">
-              <q-input v-model="reg.nombres" label="Nombres" outlined rounded dense class="col-6" lazy-rules :rules="[v => !!v || 'Obligatorio']" />
-              <q-input v-model="reg.apellidos" label="Apellidos" outlined rounded dense class="col-6" lazy-rules :rules="[v => !!v || 'Obligatorio']" />
-            </div>
-            <div class="row q-col-gutter-md">
-              <q-select v-model="reg.tipoDocumento" label="Tipo de documento" outlined rounded dense class="col-4" :options="['CC', 'TI', 'CE', 'NIT']" />
-              <q-input v-model="reg.numeroDocumento" label="Número de documento / NIT" outlined rounded dense class="col-8" lazy-rules :rules="[v => !!v || 'Obligatorio']" />
-            </div>
-            <q-input v-model="reg.telefono" label="Teléfono / celular" outlined rounded dense lazy-rules :rules="[v => !!v || 'Obligatorio']">
-              <template #prepend><q-icon name="phone" color="primary" /></template>
-            </q-input>
+        <label class="campo">
+          <span>Razón social / empresa (opcional)</span>
+          <input v-model="reg.razonSocial" type="text" placeholder="Nombre de la empresa" />
+        </label>
+        <label class="campo">
+          <span>Dirección (opcional)</span>
+          <input v-model="reg.direccion" type="text" placeholder="Dirección" />
+        </label>
+        <div class="row-2">
+          <label class="campo">
+            <span>Ciudad (opcional)</span>
+            <input v-model="reg.ciudad" type="text" placeholder="Ciudad" />
+          </label>
+          <label class="campo">
+            <span>Departamento (opcional)</span>
+            <input v-model="reg.departamento" type="text" placeholder="Departamento" />
+          </label>
+        </div>
+        <div class="row-2">
+          <label class="campo">
+            <span>Cargo (opcional)</span>
+            <input v-model="reg.cargo" type="text" placeholder="Cargo" />
+          </label>
+          <label class="campo">
+            <span>Persona de contacto (opcional)</span>
+            <input v-model="reg.personaContacto" type="text" placeholder="Contacto" />
+          </label>
+        </div>
 
-            <!-- Datos del cliente (opcionales) — formulario LABFICAT -->
-            <q-input v-model="reg.razonSocial" label="Razón social / empresa (opcional)" outlined rounded dense />
-            <q-input v-model="reg.direccion" label="Dirección (opcional)" outlined rounded dense />
-            <div class="row q-col-gutter-md">
-              <q-input v-model="reg.ciudad" label="Ciudad (opcional)" outlined rounded dense class="col-6" />
-              <q-input v-model="reg.departamento" label="Departamento (opcional)" outlined rounded dense class="col-6" />
-            </div>
-            <div class="row q-col-gutter-md">
-              <q-input v-model="reg.cargo" label="Cargo (opcional)" outlined rounded dense class="col-6" />
-              <q-input v-model="reg.personaContacto" label="Persona de contacto (opcional)" outlined rounded dense class="col-6" />
-            </div>
+        <label class="campo">
+          <span>Contraseña (mínimo 6)</span>
+          <input v-model="reg.contrasena" :type="mostrar ? 'text' : 'password'" placeholder="Contraseña" required minlength="6" />
+        </label>
+        <label class="campo">
+          <span>Confirmar contraseña</span>
+          <input v-model="reg.confirmarContrasena" :type="mostrar ? 'text' : 'password'" placeholder="Repite la contraseña" required />
+        </label>
 
-            <q-input v-model="reg.contrasena" :type="mostrar ? 'text' : 'password'" label="Contraseña (mínimo 6)" outlined rounded dense lazy-rules :rules="[v => (v && v.length >= 6) || 'Mínimo 6 caracteres']">
-              <template #prepend><q-icon name="lock" color="primary" /></template>
-            </q-input>
-            <q-input v-model="reg.confirmarContrasena" :type="mostrar ? 'text' : 'password'" label="Confirmar contraseña (repítela)" outlined rounded dense lazy-rules :rules="[v => v === reg.contrasena || 'Las contraseñas no coinciden']">
-              <template #prepend><q-icon name="lock" color="primary" /></template>
-              <template #append>
-                <q-icon :name="mostrar ? 'visibility_off' : 'visibility'" class="cursor-pointer" @click="mostrar = !mostrar" />
-              </template>
-            </q-input>
+        <label class="check">
+          <input v-model="mostrar" type="checkbox" /> Mostrar contraseñas
+        </label>
 
-            <q-btn type="submit" color="primary" label="Crear cuenta" class="full-width" :loading="auth.cargando" no-caps unelevated rounded />
-          </q-form>
-        </q-tab-panel>
-      </q-tab-panels>
-    </q-card>
+        <div class="row-fila">
+          <button type="submit" class="btn-submit">Crear cuenta</button>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -137,6 +159,10 @@ const reg = reactive({
 // Detecta si el correo es institucional SENA (@sena.edu.co).
 const esCorreoSena = computed(() => reg.correo.trim().toLowerCase().endsWith('@sena.edu.co'))
 
+function volver() {
+  router.push({ name: 'inicio' })
+}
+
 async function ingresar() {
   try {
     await auth.login(login.correo, login.contrasena)
@@ -160,12 +186,33 @@ async function registrar() {
 .auth-fondo {
   min-height: 100vh;
   background: linear-gradient(135deg, #39a900 0%, #2d8700 40%, #00324d 100%);
-  padding: 16px;
+  padding: 24px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .auth-card {
   width: 100%;
   max-width: 460px;
+  background: #fff;
   border-radius: 16px;
+  padding: 24px 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+.btn-volver {
+  background: none;
+  border: none;
+  color: #00324d;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 8px;
+}
+.btn-volver:hover { color: #39a900; }
+.logo-section {
+  text-align: center;
+  margin-bottom: 16px;
 }
 .logo-circulo {
   width: 52px;
@@ -173,7 +220,68 @@ async function registrar() {
   background: #39a900;
   border-radius: 50%;
   color: #fff;
-  box-shadow: 0 2px 8px rgba(57, 169, 0, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
 }
-.logo-svg { width: 30px; height: 30px; fill: currentColor; }
+.logo-svg { width: 28px; height: 28px; fill: currentColor; }
+.titulo { font-size: 1.3rem; font-weight: 700; color: #00324d; }
+.subtitulo { font-size: 0.8rem; color: #757575; margin-top: 2px; }
+
+.toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.toggle-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #39a900;
+  background: #fff;
+  color: #39a900;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.toggle-btn.activo {
+  background: #39a900;
+  color: #fff;
+}
+
+.form { display: flex; flex-direction: column; gap: 12px; }
+.campo { display: flex; flex-direction: column; gap: 4px; }
+.campo span { font-size: 0.8rem; color: #555; }
+.campo input,
+.campo select {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+}
+.campo input:focus,
+.campo select:focus { border-color: #39a900; }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.row-fila { display: flex; }
+.btn-submit {
+  flex: 1;
+  padding: 12px;
+  background: #39a900;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-submit:hover { background: #2d8700; }
+.aviso-sena {
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+.check { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #555; }
 </style>

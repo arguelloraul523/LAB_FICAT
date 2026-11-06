@@ -37,6 +37,7 @@ const muestraSchema = new mongoose.Schema(
     observaciones: { type: String },
     // Datos del formulario "Recepción de muestras" (CAT-ST-MI-F-002).
     municipioRecoleccion: { type: String, trim: true, default: null },
+    departamento: { type: String, trim: true, default: 'Santander' },
     direccionTomaMuestra: { type: String, trim: true, default: null },
     lugarTomaMuestra: { type: String, trim: true, default: null },
     recolectadaPor: { type: String, trim: true, default: null },

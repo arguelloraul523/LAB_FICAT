@@ -13,7 +13,7 @@ import Cotizacion from '../models/Cotizacion.js';
 router.get(
   '/',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Cliente'),
+  autorizar('Administrador', 'Cliente'),
   filtrarPropios(alcances.cotizacion),
   cotizaciones.listar
 );
@@ -22,7 +22,7 @@ router.get(
 router.get(
   '/:id/pdf',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Cliente'),
+  autorizar('Administrador', 'Cliente'),
   exigirPropietario(Cotizacion, alcances.cotizacion),
   cotizaciones.descargarPdf
 );
@@ -30,7 +30,7 @@ router.get(
 router.get(
   '/:id',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Cliente'),
+  autorizar('Administrador', 'Cliente'),
   exigirPropietario(Cotizacion, alcances.cotizacion),
   cotizaciones.obtener
 );
@@ -39,7 +39,7 @@ router.get(
 router.post(
   '/',
   proteger,
-  autorizar('Administrador', 'Recepcionista'),
+  autorizar('Administrador'),
   validarCrearCotizacion,
   validarCampos,
   cotizaciones.crear
@@ -50,7 +50,7 @@ router.post(
 router.post(
   '/:id/aceptar',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Cliente'),
+  autorizar('Administrador', 'Cliente'),
   exigirPropietario(Cotizacion, alcances.cotizacion),
   validarAceptarCotizacion,
   validarCampos,
@@ -60,7 +60,7 @@ router.post(
 router.put(
   '/:id',
   proteger,
-  autorizar('Administrador', 'Recepcionista'),
+  autorizar('Administrador'),
   exigirTransicion(Cotizacion, [{ campo: 'estado', maquina: 'cotizacion' }]),
   cotizaciones.actualizar
 );

@@ -56,6 +56,7 @@ const validarCrearMuestra = [
     .withMessage('La temperatura de recepción debe ser un número'),
   // Datos del formulario "Recepción de muestras" (CAT-ST-MI-F-002).
   body('municipioRecoleccion').optional({ nullable: true }).trim().isString(),
+  body('departamento').optional({ nullable: true }).trim().isString(),
   body('direccionTomaMuestra').optional({ nullable: true }).trim().isString(),
   body('lugarTomaMuestra').optional({ nullable: true }).trim().isString(),
   body('recolectadaPor').optional({ nullable: true }).trim().isString(),

@@ -200,6 +200,43 @@ const actualizarTipologia = asyncHandler(async (req, res) => {
   res.json({ ok: true, data: req.usuario });
 });
 
+// Actualiza los datos propios del perfil (nombres, contacto, dirección,
+// tipología). NUNCA rol/roles/tipoUsuario/activo/correo/documento (regla #12):
+// se aplica una whitelist explícita de campos.
+const CAMPOS_PERFIL = [
+  'nombres',
+  'apellidos',
+  'telefono',
+  'direccion',
+  'ciudad',
+  'departamento',
+  'cargo',
+  'personaContacto',
+  'razonSocial',
+  'tipologia',
+];
+
+const actualizarPerfil = asyncHandler(async (req, res) => {
+  const datos = {};
+  for (const campo of CAMPOS_PERFIL) {
+    if (req.body[campo] !== undefined) datos[campo] = req.body[campo];
+  }
+
+  const actualizado = await Usuario.findByIdAndUpdate(req.usuario._id, datos, {
+    new: true,
+    runValidators: true,
+  })
+    .populate('rol')
+    .populate('tipologia')
+    .select('-contrasenaHash');
+
+  if (!actualizado) {
+    return res.status(404).json({ ok: false, mensaje: 'Usuario no encontrado' });
+  }
+
+  res.json({ ok: true, data: actualizado });
+});
+
 export {
   registrar,
   login,
@@ -209,4 +246,5 @@ export {
   restablecerContrasena,
   cambiarRol,
   actualizarTipologia,
+  actualizarPerfil,
 };

@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import { registrar, login, perfil, cambiarContrasena, olvideContrasena, restablecerContrasena, cambiarRol, actualizarTipologia } from '../controllers/auth.controller.js';
+import { registrar, login, perfil, cambiarContrasena, olvideContrasena, restablecerContrasena, cambiarRol, actualizarTipologia, actualizarPerfil } from '../controllers/auth.controller.js';
 import {
   validarRegistro,
   validarLogin,
@@ -9,6 +9,7 @@ import {
   validarCambiarContrasena,
   validarCambiarRol,
   validarTipologiaUsuario,
+  validarActualizarPerfil,
 } from '../validators/auth.validators.js';
 import validarCampos from '../validators/index.js';
 import { proteger } from '../middlewares/auth.middleware.js';
@@ -20,6 +21,8 @@ router.post('/login', authLimiter, validarLogin, validarCampos, login);
 router.post('/olvide-contrasena', authLimiter, validarOlvideContrasena, validarCampos, olvideContrasena);
 router.post('/restablecer-contrasena', authLimiter, validarRestablecerContrasena, validarCampos, restablecerContrasena);
 router.get('/perfil', proteger, perfil);
+// Actualización de los datos propios del perfil.
+router.put('/perfil', proteger, validarActualizarPerfil, validarCampos, actualizarPerfil);
 router.put('/cambiar-contrasena', proteger, validarCambiarContrasena, validarCampos, cambiarContrasena);
 // Cambia el rol activo cuando la persona tiene varios roles asignados
 router.post('/cambiar-rol', proteger, validarCambiarRol, validarCampos, cambiarRol);

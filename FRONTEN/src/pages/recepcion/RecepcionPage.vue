@@ -44,7 +44,10 @@
             <q-input v-model="form.temperaturaRecepcion" type="number" label="Temperatura de recepción (°C, opcional)" outlined dense />
             <q-separator />
             <div class="text-subtitle2 text-weight-bold">Datos de recolección (CAT-ST-MI-F-002)</div>
-            <q-input v-model="form.municipioRecoleccion" label="Municipio de recolección" outlined dense />
+            <div class="row q-col-gutter-md">
+              <q-select v-model="form.departamento" label="Departamento" outlined dense use-input :options="departamentos" class="col-6" />
+              <q-input v-model="form.municipioRecoleccion" label="Municipio de recolección" outlined dense class="col-6" />
+            </div>
             <q-input v-model="form.direccionTomaMuestra" label="Dirección de toma de muestra" outlined dense />
             <q-input v-model="form.lugarTomaMuestra" label="Lugar de toma de muestra" outlined dense />
             <q-input v-model="form.recolectadaPor" label="Muestra recolectada por" outlined dense />
@@ -73,6 +76,8 @@ const resultado = ref(null)
 const dialogo = ref(false)
 const guardando = ref(false)
 
+const departamentos = ['Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bolívar', 'Boyacá', 'Caldas', 'Caquetá', 'Casanare', 'Cauca', 'Cesar', 'Chocó', 'Córdoba', 'Cundinamarca', 'Guainía', 'Guaviare', 'Huila', 'La Guajira', 'Magdalena', 'Meta', 'Nariño', 'Norte de Santander', 'Putumayo', 'Quindío', 'Risaralda', 'San Andrés', 'Santander', 'Sucre', 'Tolima', 'Valle del Cauca', 'Vaupés', 'Vichada']
+
 const form = reactive({
   entregadoPor: '',
   cantidadRecibida: null,
@@ -81,6 +86,7 @@ const form = reactive({
   estadoInicial: 'Aceptada',
   temperaturaRecepcion: null,
   municipioRecoleccion: '',
+  departamento: 'Santander',
   direccionTomaMuestra: '',
   lugarTomaMuestra: '',
   recolectadaPor: '',
@@ -98,6 +104,7 @@ const formVacio = () => ({
   estadoInicial: 'Aceptada',
   temperaturaRecepcion: null,
   municipioRecoleccion: '',
+  departamento: 'Santander',
   direccionTomaMuestra: '',
   lugarTomaMuestra: '',
   recolectadaPor: '',

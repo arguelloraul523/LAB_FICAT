@@ -29,9 +29,7 @@
 
         <q-badge color="accent" text-color="dark" class="q-mr-sm" :label="auth.rol || 'Sin rol'" />
 
-        <q-btn flat round dense icon="logout" aria-label="Salir" @click="salir">
-          <q-tooltip>Cerrar sesión</q-tooltip>
-        </q-btn>
+        <q-btn flat color="white" icon="logout" label="Cerrar sesión" no-caps @click="salir" />
       </q-toolbar>
     </q-header>
 
@@ -82,19 +80,20 @@ const drawer = ref(false)
 
 // Menú completo del sistema; se filtra según el rol activo.
 const MENU = [
-  { name: 'panel', label: 'Inicio', icon: 'home', roles: ['Administrador', 'Recepcionista', 'Analista', 'Cliente'] },
-  { name: 'dashboard', label: 'Dashboard', icon: 'dashboard', roles: ['Administrador', 'Recepcionista'] },
-  { name: 'solicitudes', label: 'Solicitudes', icon: 'description', roles: ['Administrador', 'Recepcionista', 'Cliente'] },
-  { name: 'cotizaciones', label: 'Cotizaciones', icon: 'request_quote', roles: ['Administrador', 'Recepcionista', 'Cliente'] },
+  { name: 'panel', label: 'Inicio', icon: 'home', roles: ['Administrador', 'Cliente'] },
+  { name: 'dashboard', label: 'Dashboard', icon: 'dashboard', roles: ['Administrador'] },
+  { name: 'solicitudes', label: 'Solicitudes', icon: 'description', roles: ['Administrador', 'Cliente'] },
+  { name: 'cotizaciones', label: 'Cotizaciones', icon: 'request_quote', roles: ['Administrador', 'Cliente'] },
   { name: 'pagos', label: 'Mis pagos', icon: 'payments', roles: ['Cliente'] },
   { name: 'muestras', label: 'Mis muestras', icon: 'biotech', roles: ['Cliente'] },
-  { name: 'recepcion', label: 'Recepción', icon: 'inbox', roles: ['Administrador', 'Recepcionista'] },
-  { name: 'muestras-admin', label: 'Muestras (gestión)', icon: 'biotech', roles: ['Administrador', 'Recepcionista'] },
-  { name: 'cola', label: 'Cola del día', icon: 'format_list_numbered', roles: ['Administrador', 'Recepcionista', 'Analista'] },
+  { name: 'recepcion', label: 'Recepción', icon: 'inbox', roles: ['Administrador'] },
+  { name: 'muestras-admin', label: 'Muestras (gestión)', icon: 'biotech', roles: ['Administrador'] },
+  { name: 'cola', label: 'Cola del día', icon: 'format_list_numbered', roles: ['Administrador'] },
   { name: 'usuarios', label: 'Usuarios', icon: 'group', roles: ['Administrador'] },
   { name: 'verificaciones', label: 'Verificación SENA', icon: 'verified', roles: ['Administrador'] },
   { name: 'catalogo-admin', label: 'Catálogo', icon: 'science', roles: ['Administrador'] },
   { name: 'reportes', label: 'Reportes', icon: 'bar_chart', roles: ['Administrador'] },
+  { name: 'perfil', label: 'Mi perfil', icon: 'person', roles: ['Administrador', 'Cliente'] },
 ]
 
 const menu = computed(() => MENU.filter((m) => m.roles.includes(auth.rol)))

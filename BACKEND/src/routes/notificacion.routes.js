@@ -17,7 +17,7 @@ router.get('/', proteger, filtrarPropios(alcances.notificacion), notificaciones.
 router.get('/:id', proteger, exigirPropietario(Notificacion, alcances.notificacion), notificaciones.obtener);
 router.post('/', proteger, autorizar('Administrador'), permitirCampos('usuario'), fijarUsuarioPropio('usuario'), validarNotificacion, validarCampos, notificaciones.crear);
 // Envío de un correo libre al cliente (con observaciones): Admin/Recepcionista.
-router.post('/enviar-correo', proteger, autorizar('Administrador', 'Recepcionista'), validarEnviarCorreo, validarCampos, notificaciones.enviarCorreo);
+router.post('/enviar-correo', proteger, autorizar('Administrador'), validarEnviarCorreo, validarCampos, notificaciones.enviarCorreo);
 router.put('/:id', proteger, exigirPropietario(Notificacion, alcances.notificacion), notificaciones.actualizar);
 router.delete('/:id', proteger, autorizar('Administrador'), notificaciones.eliminar);
 

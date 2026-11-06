@@ -22,14 +22,14 @@ import HistorialMuestra from '../models/HistorialMuestra.js';
 router.get(
   '/historial',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Analista', 'Cliente'),
+  autorizar('Administrador', 'Cliente'),
   filtrarPropios(alcances.historial),
   historial.listar
 );
 router.get(
   '/historial/:id',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Analista', 'Cliente'),
+  autorizar('Administrador', 'Cliente'),
   exigirPropietario(HistorialMuestra, alcances.historial),
   historial.obtener
 );
@@ -39,7 +39,7 @@ router.get(
 router.get(
   '/buscar',
   proteger,
-  autorizar('Administrador', 'Recepcionista'),
+  autorizar('Administrador'),
   validarBuscarMuestra,
   validarCampos,
   muestras.buscar
@@ -47,7 +47,7 @@ router.get(
 router.get(
   '/cola',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Analista'),
+  autorizar('Administrador'),
   muestras.cola
 );
 
@@ -57,7 +57,7 @@ router.get('/:id', proteger, exigirPropietario(Muestra, alcances.muestra), muest
 router.post(
   '/',
   proteger,
-  autorizar('Administrador', 'Recepcionista'),
+  autorizar('Administrador'),
   validarCrearMuestra,
   validarCampos,
   muestras.crear
@@ -66,21 +66,21 @@ router.post(
 router.get(
   '/:id/rotulo',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Analista'),
+  autorizar('Administrador'),
   muestras.rotulo
 );
 // Hoja de trabajo imprimible A4 anónima (RF-22)
 router.get(
   '/:id/hoja-trabajo',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Analista'),
+  autorizar('Administrador'),
   muestras.hojaTrabajo
 );
 // Cambio de etapa: transición válida + justificación en Re-ensayo (RF-23)
 router.put(
   '/:id/cambiar-etapa',
   proteger,
-  autorizar('Administrador', 'Recepcionista', 'Analista'),
+  autorizar('Administrador'),
   validarCambiarEtapa,
   validarCampos,
   muestras.cambiarEtapa
@@ -107,7 +107,7 @@ router.put(
 router.put(
   '/:id/datos-cliente',
   proteger,
-  autorizar('Administrador', 'Recepcionista'),
+  autorizar('Administrador'),
   validarDatosCliente,
   validarCampos,
   muestras.datosCliente
@@ -117,7 +117,7 @@ router.put(
 router.put(
   '/:id',
   proteger,
-  autorizar('Administrador', 'Recepcionista'),
+  autorizar('Administrador'),
   exigirTransicion(Muestra, [
     { campo: 'estado', maquina: 'muestra' },
     { campo: 'etapaActual', maquina: 'etapa' },

@@ -4,7 +4,15 @@
 > [`MEMORIA_PROYECTO.md`](./MEMORIA_PROYECTO.md); este documento detalla **quién puede hacer qué**
 > (matriz de roles) y **qué transiciones de estado son válidas** (máquinas de estado).
 >
-> Última actualización: **2026-10-08**.
+> Última actualización: **2026-11-06**.
+
+---
+
+> **⚠️ Cambio 2026-11-06 — roles simplificados a 2.** Se eliminaron `Recepcionista` y `Analista`.
+> Ahora solo existen **`Administrador`** (todo el personal del laboratorio) y **`Cliente`**
+> (externo o SENA según `tipoUsuario`). Las tablas de abajo conservan el detalle histórico;
+> donde decía "Recepcionista/Analista" hoy aplica a **`Administrador`**. El código ciego (RF-22)
+> se conserva como **hoja de trabajo / rótulo** (solo código + exámenes), no como restricción de rol.
 
 ---
 

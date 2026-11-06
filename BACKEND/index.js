@@ -128,9 +128,7 @@ const correrSeed = async () => {
 
   // 2. Roles
   const rolesDef = [
-    { nombre: 'Administrador', descripcion: 'Acceso total al sistema' },
-    { nombre: 'Recepcionista', descripcion: 'Recibe muestras y gestiona solicitudes' },
-    { nombre: 'Analista', descripcion: 'Procesa muestras y genera resultados' },
+    { nombre: 'Administrador', descripcion: 'Personal del laboratorio (acceso total)' },
     { nombre: 'Cliente', descripcion: 'Solicita análisis y consulta resultados' },
   ];
   const roles = {};
@@ -141,6 +139,16 @@ const correrSeed = async () => {
       { upsert: true, new: true, runValidators: true }
     );
     roles[r.nombre] = rol;
+  }
+
+  // Migración a 2 roles: el personal (Recepcionista/Analista) pasa a Administrador.
+  const rolesViejos = await Rol.find({ nombre: { $in: ['Recepcionista', 'Analista'] } });
+  for (const viejo of rolesViejos) {
+    await Usuario.updateMany(
+      { $or: [{ rol: viejo._id }, { roles: viejo._id }] },
+      { rol: roles['Administrador']._id, roles: [roles['Administrador']._id] }
+    );
+    await Rol.findByIdAndDelete(viejo._id);
   }
 
   // 3. Tipologías de cliente (RF-04) — "Clasificación/Tipología" (formulario LABFICAT).
