@@ -1,0 +1,162 @@
+/* ============================================================
+   Paleta SENA (verde + navy + blanco + gris suave).
+   Se sobrescriben las variables CSS de Quasar (--q-*) y se
+   añaden variables propias --sena-*.
+   ============================================================ */
+:root {
+  --q-primary: #39a900;
+  --q-secondary: #2d8700;
+  --q-accent: #f5a623;
+  --q-dark: #1f2937;
+  --q-positive: #16a34a;
+  --q-negative: #dc2626;
+  --q-info: #64748b;
+  --q-warning: #f5a623;
+
+  /* Paleta propia SENA */
+  --sena-green: #39a900;
+  --sena-darkgreen: #2d8700;
+  --sena-navy: #00324d;
+  --sena-lightgray: #f5f7fa;
+
+  /* Tokens del mockup "Mi cuenta" (glass minimal) */
+  --sena-green-dark: #226d00;
+  --sena-green-light: #46c503;
+  --sena-green-soft: #eef9e8;
+  --sena-green-glow: rgba(57, 169, 0, 0.22);
+  --sena-navy-900: #0b2238;
+  --sena-navy-deep: #061524;
+  --sena-navy-subtle: #102a45;
+  --sena-navy-muted: #627d98;
+  --sena-amber-strong: #d97706;
+  --sena-amber-deep: #b45309;
+  --sena-amber-light: #f59e0b;
+  --sena-amber-soft: #fef3c7;
+  --shadow-floating: 0 20px 45px -15px rgba(11, 34, 56, 0.07), 0 0 1px 1px rgba(11, 34, 56, 0.05);
+  --shadow-floating-hover: 0 25px 50px -12px rgba(11, 34, 56, 0.12), 0 0 1px 1px rgba(57, 169, 0, 0.2);
+  --shadow-glass-subtle: 0 8px 32px 0 rgba(11, 34, 56, 0.06);
+  --shadow-pill-glow: 0 4px 18px rgba(57, 169, 0, 0.35);
+}
+
+/* Fondo general y tipografía (mockup glass minimal) */
+html,
+body {
+  background-color: #f4f6fa;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(57, 169, 0, 0.035) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(11, 34, 56, 0.04) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(203, 219, 245, 0.18) 0px, transparent 60%);
+  background-attachment: fixed;
+  color: #1f2937;
+  font-family: 'Plus Jakarta Sans', 'Manrope', 'Inter', 'Segoe UI', Roboto, -apple-system, Helvetica, Arial, sans-serif;
+}
+
+/* Tarjetas glass del mockup */
+.glass-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: var(--shadow-floating);
+}
+
+.glass-dark-hero {
+  background: linear-gradient(135deg, #0b2238 0%, #0d2842 55%, #081a2b 100%);
+}
+
+/* Sidebar navy: Quasar pone la clase del q-drawer en `.q-drawer__content`,
+   así que el estilo debe ser global (no scoped). */
+.q-drawer .drawer-sena {
+  background: #0b2238;
+  color: #fff;
+  border-right: 1px solid rgba(20, 55, 89, 0.5);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Scrollbar fina */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+
+/* Utilidades de color */
+.text-sena { color: #39a900; }
+.text-navy { color: #00324d; }
+.bg-sena { background: #39a900; }
+.bg-navy { background: #00324d; }
+.bg-pastel { background: #f5f7fa; }
+.bg-gris-suave { background: #eff3f6; }
+
+/* Tarjetas con aire */
+.card-suave {
+  background: #ffffff;
+  border: 1px solid #e6ede2;
+  border-radius: 12px;
+}
+
+/* Badge de prioridad A1 (SENA) */
+.prioridad-a1 {
+  background: #fff4e0;
+  color: #b26a00;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+.prioridad-a2 {
+  background: #eff3f6;
+  color: #5f6b76;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+/* ============================================================
+   Utilidades adicionales de LABFICAT.
+   ============================================================ */
+:root {
+  --sena-amber: #f5a623;
+  --sena-border: #e3e9ef;
+  --sena-soft: #eff3f6;
+  --sena-pastel: #e8f5e0;
+  --sena-muted: #6b7280;
+}
+
+/* Monoespaciada (códigos, montos, KPI) */
+.mono {
+  font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+}
+
+/* Cliente en código ciego: barra de franjas */
+.cliente-ciego {
+  display: block;
+  width: 96px;
+  height: 10px;
+  border-radius: 3px;
+  background: repeating-linear-gradient(135deg, #c9d3dc 0 4px, #e3e9ef 4px 8px);
+}
+
+/* ============================================================
+   Impresi�n (ficha de "Mi cuenta"): oculta el marco de la app.
+   ============================================================ */
+@media print {
+  .q-header,
+  .q-drawer,
+  .q-footer {
+    display: none !important;
+  }
+  .q-page-container {
+    padding-left: 0 !important;
+  }
+  body {
+    background: #fff !important;
+  }
+}

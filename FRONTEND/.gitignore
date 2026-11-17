@@ -1,0 +1,18 @@
+# Dependencias
+node_modules/
+
+# Build
+dist/
+.quasar/
+
+# Variables de entorno
+.env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema
+.DS_Store
+Thumbs.db

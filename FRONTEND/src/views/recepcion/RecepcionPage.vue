@@ -1,0 +1,161 @@
+<template>
+  <div>
+    <EncabezadoPagina titulo="Recepción de muestras" subtitulo="Buscar la pre-solicitud y registrar el ingreso" icono="inbox" />
+
+    <q-input v-model="codigo" outlined dense placeholder="Buscar por código de pre-solicitud (PRE-AAAA-NNNN)" class="q-mb-md" @keyup.enter="buscar">
+      <template #prepend><q-icon name="search" /></template>
+      <template #append>
+        <q-btn flat round dense color="primary" icon="search" @click="buscar" />
+      </template>
+    </q-input>
+
+    <div v-if="resultado" class="q-mb-md">
+      <q-card class="card-suave q-pa-md">
+        <div class="row items-center justify-between">
+          <div>
+            <div class="text-subtitle1 text-weight-bold">{{ resultado.solicitud?.codigoPresolicitud }}</div>
+            <div class="text-caption text-grey-7">{{ resultado.solicitud?.descripcionMuestra }}</div>
+          </div>
+          <q-badge :color="resultado.aptaRecepcion ? 'positive' : 'negative'" text-color="white">
+            {{ resultado.aptaRecepcion ? 'Apta para recepción' : 'No apta' }}
+          </q-badge>
+        </div>
+        <div v-if="!resultado.aptaRecepcion" class="text-caption text-warning q-mt-sm">{{ resultado.motivo }}</div>
+        <div v-if="resultado.aptaRecepcion" class="q-mt-sm">
+          <q-btn color="primary" icon="inbox" label="Recibir muestra" no-caps @click="abrirRecibir" />
+        </div>
+      </q-card>
+    </div>
+
+    <!-- Diálogo recibir -->
+    <q-dialog v-model="dialogo">
+      <q-card style="width: 100%; max-width: 520px">
+        <q-card-section>
+          <div class="text-h6 text-weight-bold">Recibir muestra</div>
+          <div class="text-caption text-grey-7">{{ resultado?.solicitud?.codigoPresolicitud }}</div>
+        </q-card-section>
+        <q-card-section>
+          <q-form novalidate @submit="recibir" class="q-gutter-md">
+            <q-input v-model="form.entregadoPor" label="Entregado por" outlined dense lazy-rules :rules="[val => !!val || 'Obligatorio']" />
+            <q-input v-model="form.cantidadRecibida" type="text" inputmode="numeric" label="Cantidad recibida" outlined dense lazy-rules :rules="[numeroObligatorio]" />
+            <q-input v-model="form.unidadMedida" label="Unidad de medida" outlined dense lazy-rules :rules="[val => !!val || 'Obligatorio']" />
+            <q-select v-model="form.estadoEmpaque" label="Estado del empaque" outlined dense :options="['Buen estado', 'Malas condiciones']" lazy-rules :rules="[val => !!val || 'Obligatorio']" />
+            <q-select v-model="form.estadoInicial" label="Estado inicial" outlined dense :options="['Aceptada', 'En observación']" lazy-rules :rules="[val => !!val || 'Obligatorio']" />
+            <q-input v-model="form.temperaturaRecepcion" type="text" inputmode="decimal" label="Temperatura de recepción (°C, opcional)" outlined dense lazy-rules :rules="[numero]" />
+            <q-separator />
+            <div class="text-subtitle2 text-weight-bold">Datos de recolección (CAT-ST-MI-F-002)</div>
+            <div class="row q-col-gutter-md">
+              <q-select v-model="form.departamento" label="Departamento" outlined dense use-input :options="departamentos" class="col-6" />
+              <q-input v-model="form.municipioRecoleccion" label="Municipio de recolección" outlined dense class="col-6" />
+            </div>
+            <q-input v-model="form.direccionTomaMuestra" label="Dirección de toma de muestra" outlined dense />
+            <q-input v-model="form.lugarTomaMuestra" label="Lugar de toma de muestra" outlined dense />
+            <q-input v-model="form.recolectadaPor" label="Muestra recolectada por" outlined dense />
+            <q-input v-model="form.procedimientoMuestreo" label="Procedimiento de muestreo" outlined dense />
+            <q-input v-model="form.matrizMuestra" label="Matriz de la muestra" outlined dense />
+            <FechaHoraInput v-model="form.fechaHoraRecoleccion" label="Fecha y hora de recolección" />
+            <q-input v-model="form.itemCotizacion" label="Ítem de la cotización" outlined dense />
+            <div class="row justify-end q-gutter-sm">
+              <q-btn flat label="Cancelar" color="grey-7" v-close-popup no-caps />
+              <q-btn type="submit" color="primary" label="Recibir" :loading="guardando" no-caps />
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+  </div>
+</template>
+
+<script setup>
+import { reactive, ref } from 'vue'
+import EncabezadoPagina from '@/components/Encabezados/EncabezadoPagina.vue'
+import FechaHoraInput from '@/components/Forms/FechaHoraInput.vue'
+import { get, post } from '@/services/api.service'
+import { useNotificar } from '@/composables/useNotificar'
+// Reglas de Quasar: el navegador no valida nada (sin type=number/required).
+import { numero, numeroObligatorio } from '@/utils/reglas'
+
+const { notificarOk, notificarError, notificarInfo, validacionFallida } = useNotificar()
+
+const codigo = ref('')
+const resultado = ref(null)
+const dialogo = ref(false)
+const guardando = ref(false)
+
+// Departamentos de Colombia para el origen de la muestra (CAT-ST-MI-F-002).
+const departamentos = ['Amazonas', 'Antioquia', 'Arauca', 'Atlántico', 'Bolívar', 'Boyacá', 'Caldas', 'Caquetá', 'Casanare', 'Cauca', 'Cesar', 'Chocó', 'Córdoba', 'Cundinamarca', 'Guainía', 'Guaviare', 'Huila', 'La Guajira', 'Magdalena', 'Meta', 'Nariño', 'Norte de Santander', 'Putumayo', 'Quindío', 'Risaralda', 'San Andrés', 'Santander', 'Sucre', 'Tolima', 'Valle del Cauca', 'Vaupés', 'Vichada']
+
+const form = reactive({
+  entregadoPor: '',
+  cantidadRecibida: null,
+  unidadMedida: '',
+  estadoEmpaque: 'Buen estado',
+  estadoInicial: 'Aceptada',
+  temperaturaRecepcion: null,
+  departamento: 'Santander',
+  municipioRecoleccion: '',
+  direccionTomaMuestra: '',
+  lugarTomaMuestra: '',
+  recolectadaPor: '',
+  procedimientoMuestreo: '',
+  matrizMuestra: '',
+  fechaHoraRecoleccion: '',
+  itemCotizacion: '',
+})
+
+const formVacio = () => ({
+  entregadoPor: '',
+  cantidadRecibida: null,
+  unidadMedida: '',
+  estadoEmpaque: 'Buen estado',
+  estadoInicial: 'Aceptada',
+  temperaturaRecepcion: null,
+  departamento: 'Santander',
+  municipioRecoleccion: '',
+  direccionTomaMuestra: '',
+  lugarTomaMuestra: '',
+  recolectadaPor: '',
+  procedimientoMuestreo: '',
+  matrizMuestra: '',
+  fechaHoraRecoleccion: '',
+  itemCotizacion: '',
+})
+
+async function buscar() {
+  resultado.value = null
+  if (!codigo.value.trim()) return
+  try {
+    const data = await get('/muestras/buscar', { params: { codigo: codigo.value.trim() } })
+    resultado.value = data
+  } catch (e) {
+    notificarError(e, 'No se encontró la solicitud')
+  }
+}
+
+function abrirRecibir() {
+  Object.assign(form, formVacio())
+  dialogo.value = true
+}
+
+async function recibir() {
+  guardando.value = true
+  try {
+    const payload = { solicitud: resultado.value.solicitud._id, ...form }
+    // El componente entrega "YYYY-MM-DD HH:MM"; lo normalizamos a ISO completo.
+    if (form.fechaHoraRecoleccion) {
+      payload.fechaHoraRecoleccion = new Date(
+        String(form.fechaHoraRecoleccion).replace(' ', 'T')
+      ).toISOString()
+    }
+    await post('/muestras', payload)
+    notificarOk('Muestra recibida')
+    dialogo.value = false
+    resultado.value = null
+    codigo.value = ''
+  } catch (e) {
+    notificarError(e, 'No se pudo recibir la muestra')
+  } finally {
+    guardando.value = false
+  }
+}
+</script>
