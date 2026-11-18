@@ -35,6 +35,17 @@
             <q-btn flat color="grey-7" label="Corregir correo" no-caps @click="correoNoExiste = false" />
           </template>
         </q-banner>
+        <!-- Correo no enviado: el servicio de correo no está configurado o falló -->
+        <q-banner v-if="correoFallo" class="bg-amber-1 text-amber-10 q-mb-md" rounded dense>
+          <div class="text-body2">
+            <strong>No pudimos enviar el código de verificación.</strong>
+            El servicio de correo del laboratorio no está disponible en este momento.
+            Intenta de nuevo más tarde o contacta con el administrador.
+          </div>
+          <template #action>
+            <q-btn flat color="grey-7" label="Entendido" no-caps @click="correoFallo = false" />
+          </template>
+        </q-banner>
         <q-form novalidate @submit="solicitar" class="q-gutter-md">
           <q-input v-model="correo" type="text" inputmode="email" label="Correo electrónico" outlined dense lazy-rules :rules="[obligatorio('El correo es obligatorio'), reglaCorreo]">
             <template #prepend><q-icon name="mail" /></template>
@@ -116,10 +127,13 @@ const mostrar = ref(false)
 const cargando = ref(false)
 // true = el backend respondió CORREO_NO_REGISTRADO (404) en el paso 1.
 const correoNoExiste = ref(false)
+// true = el backend respondió SMTP_FALLO/SMTP_NO_CONFIGURADO (el correo no salió).
+const correoFallo = ref(false)
 
 async function solicitar() {
   cargando.value = true
   correoNoExiste.value = false
+  correoFallo.value = false
   try {
     const data = await post('/auth/olvide-contrasena', { correo: correo.value })
     notificarOk(data.mensaje || 'Código de verificación enviado a tu correo')
@@ -129,8 +143,11 @@ async function solicitar() {
     if (e?.codigo === 'CORREO_NO_REGISTRADO') {
       // Aviso en la tarjeta con botón "Ir a registro" (no se avanza de paso).
       correoNoExiste.value = true
+    } else if (e?.codigo === 'SMTP_FALLO' || e?.codigo === 'SMTP_NO_CONFIGURADO') {
+      // El correo no salió: aviso claro, sin avanzar al paso 2.
+      correoFallo.value = true
     } else {
-      // 503 (sin SMTP configurado) u otro error: se queda en el paso 1.
+      // Otro error: se queda en el paso 1.
       notificarError(e)
     }
   } finally {

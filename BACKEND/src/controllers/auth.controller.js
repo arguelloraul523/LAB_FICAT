@@ -126,8 +126,9 @@ const olvideContrasena = asyncHandler(async (req, res) => {
   if (!smtpConfigurado()) {
     return res.status(503).json({
       ok: false,
+      codigo: 'SMTP_NO_CONFIGURADO',
       mensaje:
-        'El servicio de correo no está configurado. Completa MAIL_HOST, MAIL_USER y MAIL_PASS en el archivo .env del backend.',
+        'El servicio de correo no está configurado. Define MAIL_PROVIDER (sendgrid | brevo | mailgun | gmail | smtp) con sus credenciales en el .env del backend.',
     });
   }
 
@@ -184,6 +185,7 @@ const olvideContrasena = asyncHandler(async (req, res) => {
     console.error('Error enviando código de recuperación:', e.message);
     return res.status(500).json({
       ok: false,
+      codigo: 'SMTP_FALLO',
       mensaje: 'No se pudo enviar el correo de verificación. Intenta de nuevo en unos minutos.',
     });
   }

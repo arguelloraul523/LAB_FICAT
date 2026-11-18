@@ -1086,9 +1086,15 @@ Authorization: Bearer {{token_admin}}
 
 ### 75. Recuperar contraseña: solicitar código de 6 dígitos
 # 2026-11-17: flujo en 3 pasos con código verificado por correo.
-# - Sin SMTP configurado (MAIL_HOST/MAIL_USER/MAIL_PASS en .env) -> 503 con
-#   mensaje claro (el chequeo va antes de buscar el usuario). Configura Gmail
-#   con contraseña de aplicación para que salga.
+# 2026-11-18: motor multi-proveedor activo (MAIL_PROVIDER en .env).
+# - Sin proveedor configurado (falta MAIL_PROVIDER o sus credenciales) -> 503
+#   codigo "SMTP_NO_CONFIGURADO" (el chequeo va antes de buscar el usuario).
+# - Proveedor mal configurado / fallo de envio -> 500 codigo "SMTP_FALLO".
+#   En ambos el frontend muestra el banner "No pudimos enviar el codigo de
+#   verificacion" y NO avanza al paso 2.
+# - Configuracion vigente: Gmail SMTP con lab.ficatt@gmail.com (App Password
+#   de 16 digitos sin espacios); plan B por HTTPS 443: MAIL_PROVIDER=resend
+#   con RESEND_API_KEY.
 # - Correo NO registrado -> **404** con codigo "CORREO_NO_REGISTRADO" y mensaje
 #   invitando a registrarse (decisión del usuario; el frontend muestra un
 #   banner con botón "Ir a registro").
