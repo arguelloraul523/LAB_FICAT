@@ -23,6 +23,16 @@ GET http://localhost:3000/login
 # Debe devolver el index.html de la SPA y mostrar el botón "Volver al acceso".
 GET http://localhost:3000/recuperar
 
+### 1e. Cabeceras de seguridad (CSP)
+# La SPA usa la API SAME-ORIGIN (`/api`), así que el CSP de helmet debe dejar
+# 'self' en connect-src y no debe ver `localhost` en el bundle (BASE_URL del
+# bundle = "/api"). En las cabeceras de la respuesta debe salir:
+#   Content-Security-Policy: default-src 'self'; connect-src 'self'; script-src 'self';
+#   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; ... img-src 'self' data: blob: ...
+# Si trae `baseURL:"http://localhost:3000/api"` en assets/index-*.js, el build
+# se hizo sin .env.production y el deploy quedará ciego (2026-11-17).
+GET http://localhost:3000/
+
 ### 2. Login (devuelve el token, cópialo en @token)
 POST {{base}}/auth/login
 Content-Type: application/json

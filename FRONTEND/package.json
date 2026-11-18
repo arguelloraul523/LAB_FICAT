@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "postbuild": "node scripts/copiar-public.js",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -48,9 +48,30 @@ const app = express();
 app.set('trust proxy', 1);
 
 // Middlewares globales
-// Helmet añade cabeceras de seguridad; se permite cargar archivos (/uploads) desde el front.
+// Helmet añade cabeceras de seguridad. La SPA se sirve desde este mismo
+// origen (`public`), así que la API entra como same-origin (`/api`) y basta
+// con 'self'; se abren aparte los tres casos reales que el default de helmet
+// no cubre: Google Fonts (index.html), las imágenes en data:/blob: (firma
+// digital y descargas con URL.createObjectURL) y los workers de Quasar.
+// Sin esto, un `VITE_API_URL` mal puesta o un fetch a otro dominio se corta
+// por CSP con el confuso "No hay conexión con el servidor".
 app.use(
   helmet({
+    contentSecurityPolicy: {
+      directives: {
+        'default-src': ["'self'"],
+        // peticiones de la SPA (axios/fetch) -> solo el propio origen.
+        'connect-src': ["'self'"],
+        // Vite/Quasar emiten módulos externos, nada de script inline.
+        'script-src': ["'self'"],
+        // Quasar inyecta estilos inline + la hoja de Google Fonts.
+        'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        'font-src': ["'self'", 'data:', 'https://fonts.gstatic.com'],
+        // data: = firma base64; blob: = PDFs/Excel descargados (reportes, cotización).
+        'img-src': ["'self'", 'data:', 'blob:'],
+        'worker-src': ["'self'", 'blob:'],
+      },
+    },
     crossOriginResourcePolicy: { policy: 'cross-origin' },
   })
 );

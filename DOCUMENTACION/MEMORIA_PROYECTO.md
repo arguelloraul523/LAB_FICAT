@@ -259,6 +259,14 @@ Cada regla es obligatoria y tiene su RF/RNF. **Si una tarea contradice alguna, d
   solo valor (modelos, rutas, `asyncHandler`, `crudFactory`, `validators/index`, `config/multer`);
   `export` nombrado en services, utils, middlewares, controllers y constants. Los imports relativos
   **siempre** con extensión `.js`; `__dirname` se deriva con `fileURLToPath(import.meta.url)`.
+- **La API del frontend es same-origin (`/api`)**, nunca una URL absoluta (2026-11-17): el backend
+  sirve la SPA desde `BACKEND/public`, así que `plugins/axios.js` usa `VITE_API_URL || '/api'`, el dev
+  la resuelve con el `server.proxy` de `vite.config.js` y el valor de producción queda fijado en
+  `FRONTEND/.env.production` (commiteado; pisa al `.env` local en `npm run build`). Un `localhost`
+  quemado en el bundle queda bloqueado por el CSP de helmet y en el deploy da el falso
+  "No hay conexión con el servidor".
+- **`npm run build` recopia solo `dist` → `BACKEND/public`** vía `postbuild`
+  (`FRONTEND/scripts/copiar-public.js`): Render no compila el frontend, despliega esa carpeta.
 
 ---
 
@@ -368,6 +376,8 @@ Cada regla es obligatoria y tiene su RF/RNF. **Si una tarea contradice alguna, d
 
 | 2026-11-16 | **Ajuste estético de acceso y registro:** se corrige el interlineado heredado de Quasar en los títulos (h1 de 96 px a proporción 1.25), se alinean botón de regreso y marca, se amplía la columna del tipo de documento para evitar el truncado de Cédula de ciudadanía, se unifican los marcadores visuales de campos obligatorios con required y se normaliza el ritmo de las secciones. El build se copia a BACKEND/public | La evaluación visual encontró texto desproporcionado, select truncado y desalineaciones en /login y /registro | Mantener los estilos globales de Quasar y corregir cada pantalla con tamaños aislados |
 | 2026-11-16 | **Navegación explícita en recuperación de contraseña:** RecuperarPage.vue incorpora un botón superior Volver al acceso que retorna a /login desde cualquiera de los tres pasos, además del enlace inferior existente | El usuario no encontraba una acción visible para salir del flujo de recuperación | Depender únicamente del enlace inferior o del botón atrás del navegador |
+| 2026-11-17 | **API same-origin en el frontend (`/api`) + CSP explícito en helmet:** `plugins/axios.js` pasa a `baseURL: import.meta.env.VITE_API_URL \|\| '/api'` y `vite.config.js` añade `server.proxy` de `/api` → `http://localhost:3000`; el valor de producción se fija en **`FRONTEND/.env.production`** (`VITE_API_URL=/api`, commiteado y con prioridad sobre el `.env` local en `npm run build`). En `index.js`, `helmet` pasa de los defaults a directivas explícitas (`default-src`/`connect-src`/`script-src` `'self'`, `style-src` con `'unsafe-inline'` + `fonts.googleapis.com`, `font-src` con `fonts.gstatic.com`, `img-src`/`worker-src` con `blob:`). Timeout de axios **20 s → 60 s** por el arranque en frío de Render. `npm run build` gana **`postbuild`** (`scripts/copiar-public.js`, `fs.rmSync`+`fs.cpSync`) que recopia `dist` → `BACKEND/public` | El deploy en Render abría la SPA pero el catálogo fallaba con "No hay conexión con el servidor": el bundle commiteado traía `baseURL:"http://localhost:3000/api"` (por el default de `axios.js` y el `VITE_API_URL` del `.env` local) y el CSP `default-src 'self'` bloqueaba ese cross-origin. Como el backend sirve la SPA desde el mismo origen, la URL relativa elimina el error de raíz y el dev queda igual con el proxy | Dejar una URL absoluta y compilar el frontend en Render (más env vars y más puntos de falla), o mantener el default `localhost` y confiar en que nadie olvide la variable |
+| 2026-11-17 | **La copia `dist` → `BACKEND/public` deja de ser manual:** `postbuild` en `FRONTEND/package.json` ejecuta `scripts/copiar-public.js` (Node, cross-platform) tras cada build, con falla explícita si no hay `dist/index.html` | Render no compila el frontend: sirve lo commiteado en `BACKEND/public`, y el desfase de esa carpeta fue justo lo que publicó el bundle con `localhost` | Seguir copiando a mano con `cp -r`/`Copy-Item` (no funciona igual en Windows) o commitear también `FRONTEND/dist` |
 ---
 
 ## 8. Estado por fases
@@ -383,6 +393,10 @@ Cada regla es obligatoria y tiene su RF/RNF. **Si una tarea contradice alguna, d
 - [x] Manejo central de errores y 404 (`error.middleware.js`).
 - [x] CORS, `express.json`/`urlencoded` (límite `1mb`) y estáticos de `uploads`.
 - [x] `helmet` (cabeceras de seguridad) y `express-rate-limit` en `/api/auth` (2026-10-08).
+- [x] **CSP explícito de helmet** (`default-src`/`connect-src`/`script-src` `'self'`, `style-src` con
+      `'unsafe-inline'` + Google Fonts, `img-src`/`worker-src` con `blob:`) y **API same-origin `/api`**
+      en el frontend con proxy de Vite en dev (2026-11-17). Verificado en local: `/` y `/api/estado`
+      salen con la cabecera, `/app/login` 200, `/api/no-existe` 404 JSON y el bundle no trae `localhost`.
 - [x] Multer (JPG/PNG/PDF, máx. 5 MB).
 - [x] Whitelist de campos en `crudFactory` (`src/constants/camposPermitidos.js`) (2026-10-08).
 - [x] Transiciones de estado validadas + 409 (`estados.js`, `transicion.middleware.js`) (2026-10-08).

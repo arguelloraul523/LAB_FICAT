@@ -18,10 +18,19 @@
 import axios from 'axios'
 
 const api = axios.create({
-  // Nunca "quemar" la URL en el código: viene del .env (VITE_API_URL).
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  // Nunca "quemar" una URL de servidor en el código: en producción el backend
+  // sirve esta misma SPA desde `/`, así que la API es SAME-ORIGIN (`/api`).
+  // Un valor absoluto solo se usa si VITE_API_URL la define a propósito (front
+  // en otro dominio). Poner aquí un `http://localhost:3000/api` por defecto
+  // rompía el deploy: el bundle compilado llamaba a la máquina del desarrollo
+  // y helmet (CSP `default-src 'self'`) bloqueaba la petición.
+  // En dev (Vite :5173) el proxy de `vite.config.js` reenvía `/api` al backend.
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: { 'Content-Type': 'application/json' },
-  timeout: 20000,
+  // 60 s: en Render (plan free) la app duerme y el primer request paga un
+  // arranque en frío; con 20 s axios cortaba la llamada y la vista mostraba
+  // el falso "No hay conexión con el servidor".
+  timeout: 60000,
 })
 
 // Se ejecuta ANTES de cada petición: adjunta el token de la sesión.

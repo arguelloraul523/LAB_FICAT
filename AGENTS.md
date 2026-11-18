@@ -47,14 +47,20 @@ Si el cambio toca `FRONTEND/`, lee antes `DOCUMENTACION/ARQUITECTURA_FRONTEND.md
 
 - `npm run dev` — Vite en `:5173` · `npm run build` — **puerta de verificación
   obligatoria** tras cualquier cambio de frontend. No existen pruebas.
-- Después de cada build: **copiar el resultado al backend** para que se sirva en `/`:
-  `rm -rf BACKEND/public && cp -r FRONTEND/dist BACKEND/public` (o
-  `Remove-Item/ Copy-Item -Recurse` en PowerShell).
+- El build **ya copia solo** al backend: `postbuild` corre `scripts/copiar-public.js`
+  (`fs.rmSync` + `fs.cpSync`, cross-platform) y deja `FRONTEND/dist` en `BACKEND/public`.
+  **Render no compila el frontend**: despliega lo commiteado en `BACKEND/public`.
+- La API se llama **same-origin** (`/api`): en prod porque el backend sirve la SPA, en dev
+  porque `vite.config.js` proxya `/api` → `http://localhost:3000`. **Nunca** escribir
+  `http://localhost:...` en el bundle: el CSP de helmet lo bloquea y el deploy queda roto.
 
 **Entorno:**
 
-- Copia `.env.example` → `.env` en cada paquete (`MONGODB_URI` obligatoria en el backend;
-  `VITE_API_URL` en el frontend). Reiniciar `npm run dev` tras tocar un `.env`.
+- Copia `.env.example` → `.env` en cada paquete (`MONGODB_URI` obligatoria en el backend).
+  Reiniciar `npm run dev` tras tocar un `.env`.
+- Frontend: `.env` (local, no commiteado) es para el dev; **`.env.production` sí se commitea**
+  y pisa a `.env` en `npm run build` — ahí vive `VITE_API_URL=/api`. Si alguien pone un
+  `localhost` en `.env.production`, el deploy vuelve a quedar ciego.
 - `BACKEND/API_TEST.http` apunta a `http://localhost:3000/api` (extensión REST Client).
 - Si `Move-Item`/rename de `FRONTEND/` falla por archivo en uso, primero detén el Vite
   (`npm run dev`) que corre dentro de esa carpeta.

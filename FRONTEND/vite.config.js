@@ -23,5 +23,15 @@ export default defineConfig({
   server: {
     port: 5173, // el mismo puerto que el backend permite en CORS
     host: true,
+    // El frontend llama a la API como `/api` (same-origin, ver plugins/axios.js).
+    // En dev eso caería en el propio Vite, así que se reenvía al backend:
+    // así el dev y el build de producción usan exactamente la misma URL relativa
+    // y no hay que tocar `.env` ni depender de CORS.
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+    },
   },
 })
