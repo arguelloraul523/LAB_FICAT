@@ -163,7 +163,7 @@ Utilidades reutilizables.
 | `crudConAuditoria.js` | CRUD genérico + registro de cambios en `AuditoriaConfiguracion` (RF-31). |
 | `tokens.js` | Generar/verificar JWT. |
 | `paginar.js` | Paginación con tope y expresiones regulares escapadas. |
-| `mailer.js` | Envío de correo (nodemailer, opcional vía SMTP). |
+| `mailer.js` | Motor de correo multi-proveedor: Gmail API (OAuth2), APIs HTTP 443 y SMTP de respaldo. |
 
 ### `src/validators/`
 Validación de entrada con `express-validator` (uno por recurso + `index.js` con `validarCampos`).

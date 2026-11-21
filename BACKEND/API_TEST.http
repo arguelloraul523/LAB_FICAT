@@ -1092,9 +1092,14 @@ Authorization: Bearer {{token_admin}}
 # - Proveedor mal configurado / fallo de envio -> 500 codigo "SMTP_FALLO".
 #   En ambos el frontend muestra el banner "No pudimos enviar el codigo de
 #   verificacion" y NO avanza al paso 2.
-# - Configuracion vigente: Gmail SMTP con lab.ficatt@gmail.com (App Password
-#   de 16 digitos sin espacios); plan B por HTTPS 443: MAIL_PROVIDER=resend
-#   con RESEND_API_KEY.
+# - Configuracion vigente (2026-11-19): Gmail API de Google Cloud por OAuth2,
+#   MAIL_PROVIDER=gmailapi con GMAIL_CLIENT_ID / GMAIL_CLIENT_SECRET /
+#   GMAIL_REFRESH_TOKEN (+ GMAIL_FROM). Sale por HTTPS 443, sin SMTP ni App
+#   Password. La guia de Google Cloud Console y OAuth Playground esta en
+#   BACKEND/.env.example. OJO: el refresh token solo dura si la pantalla de
+#   consentimiento esta en modo "In production" (en "Testing" caduca a los
+#   7 dias). Plan B: MAIL_PROVIDER=gmail con App Password, o resend con
+#   RESEND_API_KEY.
 # - Correo NO registrado -> **404** con codigo "CORREO_NO_REGISTRADO" y mensaje
 #   invitando a registrarse (decisión del usuario; el frontend muestra un
 #   banner con botón "Ir a registro").

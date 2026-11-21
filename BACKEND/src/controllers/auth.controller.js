@@ -128,7 +128,7 @@ const olvideContrasena = asyncHandler(async (req, res) => {
       ok: false,
       codigo: 'SMTP_NO_CONFIGURADO',
       mensaje:
-        'El servicio de correo no está configurado. Define MAIL_PROVIDER (sendgrid | brevo | mailgun | gmail | smtp) con sus credenciales en el .env del backend.',
+        'El servicio de correo no está configurado. Define MAIL_PROVIDER (gmailapi | resend | sendgrid | brevo | mailgun | gmail | smtp) con sus credenciales en el .env del backend.',
     });
   }
 

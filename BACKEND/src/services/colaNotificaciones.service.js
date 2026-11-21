@@ -57,11 +57,11 @@ const procesarJob = async (job) => {
         html: html ? cuerpo : undefined,
       });
       if (resultado === false) {
-        // SMTP no configurado: no se reintenta (no es un fallo transitorio).
+        // Correo no configurado: no se reintenta (no es un fallo transitorio).
         await registrar(job.notificacionId, {
           estado: 'Fallido',
           intentos: intento,
-          error: 'SMTP no configurado',
+          error: 'Correo no configurado',
         });
         return false;
       }

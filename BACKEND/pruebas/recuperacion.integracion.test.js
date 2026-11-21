@@ -11,11 +11,17 @@
 // ============================================================
 process.env.JWT_SECRET = 'secreto-de-prueba-recuperacion';
 process.env.NODE_ENV = 'test';
-// Asegura el caso "sin SMTP" al inicio (se configura después para el envío).
+// Asegura el caso "sin proveedor" al inicio (se configura después para el
+// envío). Se borran también las credenciales del Gmail API para que la
+// autodetección no elija gmailapi sobre el SMTP falso de la prueba.
 delete process.env.MAIL_HOST;
 delete process.env.MAIL_USER;
 delete process.env.MAIL_PASS;
 delete process.env.MAIL_PORT;
+delete process.env.MAIL_PROVIDER;
+delete process.env.GMAIL_CLIENT_ID;
+delete process.env.GMAIL_CLIENT_SECRET;
+delete process.env.GMAIL_REFRESH_TOKEN;
 
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
