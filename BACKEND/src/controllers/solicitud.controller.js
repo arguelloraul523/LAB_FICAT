@@ -8,7 +8,6 @@ import { emitirCupon } from '../services/cupones.service.js';
 import { guardar, abrirLectura, existe, eliminar } from '../services/storage.service.js';
 import { transicionValida } from '../constants/estados.js';
 import { sanitizarBody } from '../constants/camposPermitidos.js';
-import { esCliente } from '../middlewares/propietario.middleware.js';
 import Solicitud from '../models/Solicitud.js';
 import Cotizacion from '../models/Cotizacion.js';
 import Examen from '../models/Examen.js';
@@ -67,14 +66,14 @@ const crearSolicitud = asyncHandler(async (req, res) => {
   // Regla inviolable #12: whitelist del body. El estado, la exoneración, el código,
   // la autorización y la fecha de cierre los fija SIEMPRE el servidor, nunca el cliente.
   // Esto cierra el bypass de pago (RF-09): no se puede crear una solicitud ya "Pagada".
-  const datos = sanitizarBody(req.body, { permitir: ['usuario'] });
+  const datos = sanitizarBody(req.body);
   datos.codigoPresolicitud = codigo;
   datos.examenes = examenes;
   datos.estado = 'Pre-solicitud';
   datos.exonerada = false;
   datos.fechaCierre = null;
   datos.autorizacion = null;
-  if (esCliente(req)) datos.usuario = req.usuario._id;
+  datos.usuario = req.usuario._id;
 
   const solicitud = await Solicitud.create(datos);
   res.status(201).json({ ok: true, data: solicitud, sugerencias });

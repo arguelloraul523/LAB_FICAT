@@ -1,7 +1,19 @@
 <template>
   <div class="chatbot-root">
+    <!-- Botón para restaurar el asistente cuando está oculto -->
+    <button
+      v-if="oculto"
+      class="chat-restore"
+      type="button"
+      aria-label="Mostrar asistente"
+      title="Mostrar asistente"
+      @click="mostrarChatbot"
+    >
+      <span aria-hidden="true">+</span>
+    </button>
+
     <!-- Burbuja flotante -->
-    <div v-if="!abierto" class="chat-bubble-wrap">
+    <div v-else-if="!abierto" class="chat-bubble-wrap">
       <div class="chat-tooltip">
         <div class="chat-tooltip-head">
           <span class="tooltip-mascot">
@@ -16,6 +28,15 @@
       </div>
 
       <div class="chat-bubble-row">
+        <button
+          class="chat-hide chat-hide--bubble"
+          type="button"
+          aria-label="Ocultar asistente"
+          title="Ocultar asistente"
+          @click="ocultarChatbot"
+        >
+          <span v-html="ICONS.minus" />
+        </button>
         <div v-if="animacion === 'sueno'" class="sleep-bubble" aria-hidden="true">
           <span class="sleep-z sleep-z1">Z</span>
           <span class="sleep-z sleep-z2">z</span>
@@ -33,7 +54,7 @@
 
     <!-- Panel -->
     <section
-      v-if="abierto"
+      v-else
       class="chat-panel"
       :class="{ 'is-expandido': expandido }"
       aria-label="Asistente del Laboratorio SENA"
@@ -56,6 +77,15 @@
           @click="alternarTamano"
         >
           <span v-html="expandido ? ICONS.chevronDown : ICONS.chevronUp" />
+        </button>
+        <button
+          class="head-btn head-btn--hide"
+          type="button"
+          title="Ocultar asistente"
+          aria-label="Ocultar asistente"
+          @click="ocultarChatbot"
+        >
+          <span v-html="ICONS.minus" />
         </button>
         <button class="head-btn" type="button" title="Minimizar" aria-label="Minimizar" @click="minimizar">
           <span v-html="ICONS.minus" />
@@ -221,6 +251,18 @@ const messagesEl = ref(null)
 const inputEl = ref(null)
 const liveHost = ref(null)
 const btnCancelar = ref(null)
+
+// Estado "oculto" del widget: se persiste en sessionStorage para que se
+// mantenga mientras la persona navega (se conserva entre vistas y recargas
+// de la misma pestaña).
+function leerOculto() {
+  try {
+    return sessionStorage.getItem('chatbot-oculto') === '1'
+  } catch {
+    return false
+  }
+}
+const oculto = ref(leerOculto())
 
 const ultimoAsistenteId = computed(() => {
   for (let i = mensajes.value.length - 1; i >= 0; i--) {
@@ -655,6 +697,27 @@ function minimizar() {
   }
   vivaColocada = false
   reiniciarSueno()
+}
+
+function guardarOculto(valor) {
+  try {
+    sessionStorage.setItem('chatbot-oculto', valor ? '1' : '0')
+  } catch {
+    /* sessionStorage no disponible: se mantiene solo en memoria */
+  }
+}
+
+// Oculta todo el widget (tarjeta y burbuja) y guarda el estado.
+function ocultarChatbot() {
+  if (abierto.value) minimizar()
+  oculto.value = true
+  guardarOculto(true)
+}
+
+// Restaura el widget: vuelve a mostrar la burbuja flotante.
+function mostrarChatbot() {
+  oculto.value = false
+  guardarOculto(false)
 }
 
 /**

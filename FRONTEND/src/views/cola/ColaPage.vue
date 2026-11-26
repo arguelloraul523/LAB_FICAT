@@ -10,7 +10,7 @@
       <b>En atenci√≥n:</b> {{ enAtencion.codigoMuestra }} (prioridad {{ enAtencion.prioridad }}, turno {{ enAtencion.numeroTurno }})
     </q-banner>
 
-    <TablaDatos :filas="filas" :columnas="columnas" :cargando="cargando" mensaje-vacio="La cola est· vacÌa">
+    <TablaDatos :filas="filas" :columnas="columnas" :cargando="cargando" mensaje-vacio="La cola est√° vac√≠a">
       <template #body-cell-prioridad="props">
         <q-td :props="props"><span :class="props.value === 'A1' ? 'prioridad-a1' : 'prioridad-a2'">{{ props.value }}</span></q-td>
       </template>

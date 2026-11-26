@@ -25,10 +25,10 @@
         </q-card-section>
         <q-card-section>
           <q-form novalidate @submit="crear" class="q-gutter-md">
-            <q-select v-model="form.tipoMuestra" label="Tipo de muestra / matriz" outlined dense :options="tipos" option-label="nombre" option-value="_id" emit-value map-options lazy-rules :rules="[val => !!val || 'Obligatorio']" />
-            <q-input v-model="form.descripcionMuestra" label="Descripción de la muestra" outlined dense lazy-rules :rules="[val => !!val || 'Obligatorio']" />
-            <q-select v-model="form.origen" label="Origen" outlined dense :options="['Rural', 'Industrial', 'Doméstico']" lazy-rules :rules="[val => !!val || 'Obligatorio']" />
-            <q-input v-model="form.cantidadEstimada" label="Cantidad estimada disponible" outlined dense lazy-rules :rules="[val => !!val || 'Obligatorio']" />
+            <q-select v-model="form.tipoMuestra" label="Tipo de muestra / matriz" outlined dense :options="tipos" option-label="nombre" option-value="_id" emit-value map-options lazy-rules :rules="[obligatorio()]" />
+            <q-input v-model="form.descripcionMuestra" label="Descripción de la muestra" outlined dense lazy-rules :rules="[obligatorio()]" />
+            <q-select v-model="form.origen" label="Origen" outlined dense :options="['Rural', 'Industrial', 'Doméstico']" lazy-rules :rules="[obligatorio()]" />
+            <q-input v-model="form.cantidadEstimada" label="Cantidad estimada disponible" outlined dense lazy-rules :rules="[obligatorio()]" />
             <q-select v-model="form.examenes" label="Análisis de interés (opcional)" outlined dense multiple use-chips :options="examenes" option-label="nombre" option-value="_id" emit-value map-options />
             <div class="row justify-end q-gutter-sm">
               <q-btn flat label="Cancelar" color="grey-7" v-close-popup no-caps />
@@ -48,6 +48,7 @@ import TablaDatos from '@/components/Tables/TablaDatos.vue'
 import { get, post } from '@/services/api.service'
 import { useCatalogoStore } from '@/store/catalogo'
 import { useNotificar } from '@/composables/useNotificar'
+import { obligatorio } from '@/utils/reglas'
 
 const { notificarOk, notificarError, notificarInfo, validacionFallida } = useNotificar()
 

@@ -33,7 +33,7 @@ export const useCatalogoStore = defineStore('catalogo', {
         const data = await get('/catalogo/examenes', { params: { limite: 50, ...filtros } })
         this.examenes = data.data || []
         this.total = data.total || this.examenes.length
-        return data
+        return this.examenes
       } finally {
         this.cargando = false
       }

@@ -1551,3 +1551,80 @@
     transition: none;
   }
 }
+
+/* ---------------- Ocultar / restaurar el asistente ---------------- */
+
+.chat-restore {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9000;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--sena-green);
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 6px 16px -4px rgba(0, 0, 0, 0.3);
+  animation: pop-in 0.2s ease-out;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.chat-restore:hover {
+  background: var(--sena-green-dark);
+  transform: scale(1.08);
+}
+
+.chat-hide {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--sena-green);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.chat-hide:hover {
+  background: var(--sena-green-dark);
+  transform: scale(1.1);
+}
+.chat-hide svg {
+  width: 14px;
+  height: 14px;
+}
+
+.chat-hide--bubble {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 31;
+}
+
+.head-btn--hide {
+  color: var(--sena-green);
+}
+.head-btn--hide:hover {
+  color: #6fdf43;
+  background: rgba(57, 169, 0, 0.2);
+}
+
+@media (max-width: 480px) {
+  .chat-restore {
+    right: 16px;
+    bottom: 16px;
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+}

@@ -19,6 +19,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 const routes = [
   // ---- Públicas ----
   { path: '/', name: 'inicio', component: () => import('@/views/publico/InicioPage.vue'), meta: { public: true, titulo: 'Inicio' } },
+  { path: '/servicios', name: 'servicios', component: () => import('@/views/publico/ServiciosPage.vue'), meta: { public: true, titulo: 'Servicios' } },
   { path: '/login', name: 'login', component: () => import('@/views/auth/AuthPage.vue'), meta: { public: true, titulo: 'Iniciar sesión' } },
   { path: '/registro', name: 'registro', component: () => import('@/views/auth/AuthPage.vue'), meta: { public: true, titulo: 'Registro' } },
   { path: '/recuperar', name: 'recuperar', component: () => import('@/views/auth/RecuperarPage.vue'), meta: { public: true, titulo: 'Recuperar contraseña' } },
